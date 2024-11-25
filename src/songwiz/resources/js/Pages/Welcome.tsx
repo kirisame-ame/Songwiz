@@ -1,5 +1,7 @@
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
+import ImageInput from "@/Components/ImageInput";
+import {useState} from "react";
 
 export default function Welcome({
     auth,
@@ -45,7 +47,7 @@ export default function Welcome({
                                         </Link>
                                         <Link
                                             href={route('register')}
-                                            className="text-xl font-bold rounded-md px-3 py-2 text-black/70 ring-1 ring-transparent transition hover:text-blue-500/70 hover:scale-110 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                            className="text-xl font-bold rounded-md px-3 py-2 text-black/70 ring-1 ring-transparent transition hover:text-red-500 hover:scale-110 focus:outline-none focus-visible:ring-[#FF2D20]"
                                         >
                                             Register
                                         </Link>
@@ -55,28 +57,32 @@ export default function Welcome({
                         </header>
 
                         <main className="">
-                            <div className="flex flex-col items-center justify-center">
-                                <div className="w-3/4 flex flex-row">
-                                    <div className="items-center justify-center flex flex-1 bg-gray-50/50 rounded-t-lg py-3 border-2 border-gray-50">
-                                        <button className="text-center">
-                                            Audio
-                                        </button>
+                            <div className="w-3/4 mx-auto">
+                                <div className="flex flex-col items-center justify-center">
+                                    <div className="flex flex-row w-full">
+                                        <div
+                                            className="items-center justify-center flex flex-1 rounded-t-lg py-3 border-2 border-gray-50 bg-gray-50/50 active:scale-95">
+                                            <button className="text-center">
+                                                Audio
+                                            </button>
+                                        </div>
+                                        <div
+                                            className="items-center justify-center flex flex-1 rounded-t-lg py-3 border-2 border-gray-50 bg-gray-50/50 active:scale-95">
+                                            <button className="text-center">
+                                                Image
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="items-center justify-center flex flex-1 bg-gray-50/50 rounded-t-lg py-3 border-2 border-gray-50">
-                                        <button className="text-center">
-                                            Image
-                                        </button>
+                                    <div className="w-full min-h-40 bg-gray-50/50 items-center justify-center flex text-center py-3">
+                                        <ImageInput></ImageInput>
                                     </div>
                                 </div>
-                                <div className="w-3/4 text-center bg-gray-50/50 text-3xl font-bold text-black/70">
-                                    File input Box
-                                </div>
-                                <div></div>
                             </div>
+
                         </main>
 
                         <footer className="py-16 text-center text-sm text-black /70">
-                            Made by kirisame-ame
+                            <p>Made by <span className="text-base font-bold underline hover:text-blue-700"><a href="https://github.com/kirisame-ame" target="_blank" rel="noopener noreferrer">kirisame-ame</a></span></p>
                         </footer>
                     </div>
                 </div>
