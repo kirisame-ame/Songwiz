@@ -2,11 +2,10 @@ import { PageProps } from '@/types'
 import { Head, Link } from '@inertiajs/react'
 import ImageInput from '@/Components/ImageInput'
 import { useState } from 'react'
+import AudioInput from '@/Components/AudioInput'
 
 export default function Welcome({
     auth,
-    laravelVersion,
-    phpVersion,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
     const handleImageError = () => {
         document
@@ -79,7 +78,7 @@ export default function Welcome({
                                                     handleClick(1)
                                                 }}
                                             >
-                                                Audio
+                                                Audio/MIDI
                                             </button>
                                         </div>
                                         <div
@@ -99,9 +98,13 @@ export default function Welcome({
                                     </div>
                                     <div className="flex min-h-40 w-full items-center justify-center bg-gray-50/50 py-3 text-center">
                                         {activeButton === 1 ? (
-                                            <p>audio</p>
+                                            <AudioInput />
+                                        ) : activeButton === 2 ? (
+                                            <ImageInput />
                                         ) : (
-                                            <ImageInput></ImageInput>
+                                            <p className="text-center text-3xl">
+                                                Choose Audio or Image
+                                            </p>
                                         )}
                                     </div>
                                 </div>
