@@ -5,7 +5,7 @@ function CustomFileInput() {
     const [previewUrl, setPreviewUrl] = useState('')
 
     // Handle file change
-    const handleFileChange = (event) => {
+    const handleFileChange = (event: any) => {
         const file = event.target.files[0]
         if (file) {
             setFileName(file.name) // Update the file name display
@@ -20,6 +20,7 @@ function CustomFileInput() {
 
     // Trigger file input click when custom button is clicked
     const handleButtonClick = () => {
+        // @ts-ignore
         document.getElementById('hidden-file-input').click()
     }
 
@@ -27,7 +28,7 @@ function CustomFileInput() {
         <div className="">
             {previewUrl && (
                 <div className="flex items-center justify-center">
-                    <img src={previewUrl} alt="Preview" className="w-sm" />
+                    <img src={previewUrl} alt="Preview" className="max-w-sm" />
                 </div>
             )}
             {/* Hidden file input */}
