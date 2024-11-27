@@ -44,9 +44,9 @@ function CustomFileInput() {
             {/* Custom button to trigger file input */}
             <button
                 onClick={handleButtonClick}
-                className="border-1 rounded-md px-5 text-3xl text-black/70 transition duration-200 hover:scale-150"
+                className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 hover:scale-150"
             >
-                Upload File
+                {previewUrl ? 'Change File' : 'Upload File'}
             </button>
         </div>
     )

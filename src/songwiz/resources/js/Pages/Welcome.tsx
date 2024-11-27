@@ -17,6 +17,12 @@ export default function Welcome({
         document.getElementById('background')?.classList.add('!hidden')
     }
 
+    const [activeButton, setActiveButton] = useState(null) // Tracks which button is clicked
+
+    // Handle button click
+    const handleClick = (buttonId: any) => {
+        setActiveButton(buttonId) // Update the active button
+    }
     return (
         <>
             <Head title="Songwiz" />
@@ -62,19 +68,41 @@ export default function Welcome({
                             <div className="mx-auto w-3/4">
                                 <div className="flex flex-col items-center justify-center">
                                     <div className="flex w-full flex-row">
-                                        <div className="flex flex-1 items-center justify-center rounded-t-lg border-2 border-gray-50 bg-gray-50/50 py-3 active:scale-95">
-                                            <button className="text-center">
+                                        <div
+                                            onMouseDown={() => handleClick(1)}
+                                            className={`box-border flex flex-1 items-center justify-center rounded-t-lg border-2 border-gray-50 ${activeButton === 1 ? 'bg-gray-50' : 'bg-gray-50/50'} cursor-pointer py-3 active:scale-95`}
+                                        >
+                                            <button
+                                                className="text-center"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    handleClick(1)
+                                                }}
+                                            >
                                                 Audio
                                             </button>
                                         </div>
-                                        <div className="flex flex-1 items-center justify-center rounded-t-lg border-2 border-gray-50 bg-gray-50/50 py-3 active:scale-95">
-                                            <button className="text-center">
+                                        <div
+                                            onMouseDown={() => handleClick(2)}
+                                            className={`box-border flex flex-1 items-center justify-center rounded-t-lg border-2 border-gray-50 ${activeButton === 2 ? 'bg-gray-50' : 'bg-gray-50/50'} cursor-pointer py-3 active:scale-95`}
+                                        >
+                                            <button
+                                                className="flex-fill"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    handleClick(2)
+                                                }}
+                                            >
                                                 Image
                                             </button>
                                         </div>
                                     </div>
                                     <div className="flex min-h-40 w-full items-center justify-center bg-gray-50/50 py-3 text-center">
-                                        <ImageInput></ImageInput>
+                                        {activeButton === 1 ? (
+                                            <p>audio</p>
+                                        ) : (
+                                            <ImageInput></ImageInput>
+                                        )}
                                     </div>
                                 </div>
                             </div>
