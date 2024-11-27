@@ -35,7 +35,7 @@ function CustomFileInput() {
             <input
                 id="hidden-file-input"
                 type="file"
-                accept="image/*"
+                accept="image/jpeg, image/png,image/webp"
                 onChange={handleFileChange}
                 style={{ display: 'none' }} // Hide the default file input
             />
