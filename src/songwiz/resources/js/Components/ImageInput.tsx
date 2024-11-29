@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import SearchIcon from '@/svg/SearchIcon'
 
 function CustomFileInput() {
     const [fileName, setFileName] = useState('')
@@ -28,7 +29,11 @@ function CustomFileInput() {
         <div className="">
             {previewUrl && (
                 <div className="flex items-center justify-center">
-                    <img src={previewUrl} alt="Preview" className="max-w-sm" />
+                    <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="max-h-[400px] max-w-[400px] rounded-md object-cover"
+                    />
                 </div>
             )}
             {/* Hidden file input */}
@@ -48,6 +53,14 @@ function CustomFileInput() {
             >
                 {previewUrl ? 'Change File' : 'Upload File'}
             </button>
+            <div
+                className={`flex w-full items-center justify-center pt-2 ${previewUrl ? '' : 'hidden'}`}
+            >
+                <button className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150">
+                    <SearchIcon />
+                    <p>Search</p>
+                </button>
+            </div>
         </div>
     )
 }

@@ -50,7 +50,7 @@ export default function Welcome({
                                             href={route('login')}
                                             className="rounded-md px-3 py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
                                         >
-                                            Login
+                                            Admin Login
                                         </Link>
                                         <Link
                                             href={route('register')}
@@ -96,7 +96,7 @@ export default function Welcome({
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="flex min-h-40 w-full items-center justify-center bg-gray-50/50 py-3 text-center">
+                                    <div className="flex min-h-40 w-full items-center justify-center rounded-b-lg bg-gray-50/50 py-3 text-center">
                                         {activeButton === 1 ? (
                                             <AudioInput />
                                         ) : activeButton === 2 ? (

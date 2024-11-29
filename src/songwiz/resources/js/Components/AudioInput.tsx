@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import MidiPlayer from '@/Components/MidiPlayer'
+import SearchIcon from '@/svg/SearchIcon'
 
 function CustomFileInput() {
     const [fileName, setFileName] = useState('')
@@ -72,10 +73,18 @@ function CustomFileInput() {
             {/* Custom button to trigger file input */}
             <button
                 onClick={handleButtonClick}
-                className="border-1 rounded-md px-5 py-2 text-3xl text-black transition duration-200 hover:scale-150"
+                className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 hover:scale-150"
             >
                 {previewUrl || midiFile ? 'Change File' : 'Upload File'}
             </button>
+            <div
+                className={`flex w-full items-center justify-center pt-2 ${previewUrl || midiFile ? '' : 'hidden'}`}
+            >
+                <button className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150">
+                    <SearchIcon />
+                    <p>Search</p>
+                </button>
+            </div>
         </div>
     )
 }
