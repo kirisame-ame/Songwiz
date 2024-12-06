@@ -16,11 +16,10 @@ export default function Welcome({
         document.getElementById('background')?.classList.add('!hidden')
     }
 
-    const [activeButton, setActiveButton] = useState(null) // Tracks which button is clicked
+    const [activeButton, setActiveButton] = useState(null)
 
-    // Handle button click
     const handleClick = (buttonId: any) => {
-        setActiveButton(buttonId) // Update the active button
+        setActiveButton(buttonId)
     }
     return (
         <>
