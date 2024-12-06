@@ -2,6 +2,7 @@ import numpy as np
 from mido import MidiFile
 import os
 from multiprocessing import Pool, cpu_count
+from numba import njit
 
 # 1. Function to read melody from MIDI file with onset times
 def extract_melody_from_midi(file_path, channel=0):
@@ -24,6 +25,7 @@ def extract_melody_from_midi(file_path, channel=0):
                     onset_times.append(onset_time)
     return melody, onset_times
 
+@njit()
 # 2. Normalize Pitch (relative to the first note for transposition invariance)
 def normalize_pitch(pitch_sequence):
     """
@@ -56,47 +58,55 @@ def normalize_time_intervals(onset_times):
     return normalized_time_intervals
 
 # 4. Feature Extraction (ATB, RTB, FTB, and rhythm features)
+# 4. Feature Extraction (Optimized)
 def extract_features(pitch_sequence, time_intervals):
     """
     Extract ATB, RTB, FTB features from the normalized pitch sequence and rhythm features.
     """
     if not pitch_sequence:  # Handle empty input
-        return np.zeros(128 + 255 + 255 + 25)  # Include rhythm features
+        return np.zeros(128 + 255 + 255 + 25, dtype=np.float32)  # Include rhythm features
 
     # Convert sequences to NumPy arrays for vectorization
-    pitch_sequence = np.array(pitch_sequence)
-    time_intervals = np.array(time_intervals)
+    pitch_sequence = np.array(pitch_sequence, dtype=np.int32)
+    time_intervals = np.array(time_intervals, dtype=np.float32)
 
     # ATB (Absolute Tone Based)
-    atb_histogram = np.zeros(128)
-    indices = pitch_sequence + 64  # Shift pitch range to positive indices
-    valid_indices = (indices >= 0) & (indices < 128)
-    indices = indices[valid_indices].astype(int)
-    np.add.at(atb_histogram, indices, 1)
+    atb_histogram, _ = np.histogram(pitch_sequence, bins=128, range=(-64, 64))
     atb_total = atb_histogram.sum()
-    atb_histogram_normalized = atb_histogram / atb_total if atb_total else atb_histogram
+    if atb_total > 0:
+        atb_histogram_normalized = atb_histogram / atb_total
+    else:
+        atb_histogram_normalized = atb_histogram
 
     # RTB (Relative Tone Based)
-    rtb_histogram = np.zeros(255)
-    diffs = np.diff(pitch_sequence) + 127  # Shift to positive indices
-    valid_diffs = (diffs >= 0) & (diffs < 255)
-    diffs = diffs[valid_diffs].astype(int)
-    np.add.at(rtb_histogram, diffs, 1)
+    rtb_diffs = np.diff(pitch_sequence)
+    rtb_histogram, _ = np.histogram(rtb_diffs, bins=255, range=(-127, 127))
     rtb_total = rtb_histogram.sum()
-    rtb_histogram_normalized = rtb_histogram / rtb_total if rtb_total else rtb_histogram
+    if rtb_total > 0:
+        rtb_histogram_normalized = rtb_histogram / rtb_total
+    else:
+        rtb_histogram_normalized = rtb_histogram
 
     # FTB (First Tone Based)
-    ftb_histogram = np.zeros(255)
-    diffs = pitch_sequence - pitch_sequence[0] + 127  # Shift to positive indices
-    valid_diffs = (diffs >= 0) & (diffs < 255)
-    diffs = diffs[valid_diffs].astype(int)
-    np.add.at(ftb_histogram, diffs, 1)
+    ftb_diffs = pitch_sequence - pitch_sequence[0]
+    ftb_histogram, _ = np.histogram(ftb_diffs, bins=255, range=(-127, 127))
     ftb_total = ftb_histogram.sum()
-    ftb_histogram_normalized = ftb_histogram / ftb_total if ftb_total else ftb_histogram
+    if ftb_total > 0:
+        ftb_histogram_normalized = ftb_histogram / ftb_total
+    else:
+        ftb_histogram_normalized = ftb_histogram
 
-    # Combine all features into a single NumPy array
-    return np.concatenate([atb_histogram_normalized, rtb_histogram_normalized,ftb_histogram_normalized])
+    # Combine all features into a single NumPy array with appropriate weights
+    combined_features = np.concatenate([
+        0.7 * atb_histogram_normalized.astype(np.float32),
+        rtb_histogram_normalized.astype(np.float32),
+        5.0 * ftb_histogram_normalized.astype(np.float32)
+    ])
 
+    return combined_features
+
+@njit(parallel=True)
+#return np.concatenate([atb_histogram_normalized,rtb_histogram_normalized,ftb_histogram_normalized])
 # 5. Cosine Similarity Calculation
 def calculate_cosine_similarity(vector1, vector2):
     """
@@ -111,7 +121,6 @@ def calculate_cosine_similarity(vector1, vector2):
         return 0
     dot_product = np.dot(vector1, vector2)
     return dot_product / (norm1 * norm2)
-
 
 # 6. Sliding Window Based on Number of Notes
 def sliding_window(sequence, time_intervals, window_size, stride):
@@ -191,61 +200,54 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4):
         print("Humming file contains no melody.")
         return {}
 
-    # Convert onset_times from ticks to beats
     midi = MidiFile(hummed_file)
     ticks_per_beat = midi.ticks_per_beat
     if ticks_per_beat <= 0:
         print(f"Invalid ticks_per_beat in {hummed_file}.")
         return {}
 
-    onset_times_beats = [t / ticks_per_beat for t in onset_times]
-
-    # Normalize pitch
+    onset_times_beats = np.array([t / ticks_per_beat for t in onset_times])
     normalized_pitches = normalize_pitch(pitches)
-
-    # Normalize time intervals
     normalized_time_intervals = normalize_time_intervals(onset_times_beats)
 
     if not normalized_time_intervals:
         print("Humming file has insufficient data for time interval computation.")
         return {}
 
-    # Create sliding windows
     hummed_windows = sliding_window(normalized_pitches, normalized_time_intervals, window_size, stride)
     if not hummed_windows:
         print("No valid windows generated for humming.")
         return {}
 
-    # Extract features from humming windows
     hummed_features_list = []
     for window_sequence, window_time_intervals in hummed_windows:
         features = extract_features(window_sequence, window_time_intervals)
         hummed_features_list.append(features)
     hummed_features_array = np.array(hummed_features_list)
 
+    hummed_norms = np.linalg.norm(hummed_features_array, axis=1, keepdims=True)
+
     similarity_scores = {}
 
-    # Compare with features in the database using vectorized operations
     for midi_file, features_array in features_dict.items():
         if features_array.size == 0:
             similarity_scores[midi_file] = 0.0
             continue
-        # Compute cosine similarities between all pairs of humming and database features
+
+        db_norms = np.linalg.norm(features_array, axis=1)
         dot_products = np.dot(hummed_features_array, features_array.T)
-        norms_hummed = np.linalg.norm(hummed_features_array, axis=1)[:, np.newaxis]
-        norms_database = np.linalg.norm(features_array, axis=1)
-        norms_product = norms_hummed * norms_database
-        # Avoid division by zero and handle NaNs
+
+        norms_product = hummed_norms * db_norms
         with np.errstate(divide='ignore', invalid='ignore'):
             cosine_similarities = np.where(norms_product != 0, dot_products / norms_product, 0)
             cosine_similarities = np.nan_to_num(cosine_similarities)
+
         max_score = np.max(cosine_similarities)
         if np.isnan(max_score) or np.isinf(max_score):
             max_score = 0.0
         similarity_scores[midi_file] = max_score
         print(f"{midi_file}: Max Similarity Score = {max_score:.4f}")
 
-    # Sort results based on similarity scores
     ranked_results = dict(sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True))
 
     return ranked_results

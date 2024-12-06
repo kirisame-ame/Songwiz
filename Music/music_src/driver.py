@@ -8,7 +8,7 @@ if __name__ == "__main__":
     midi_database_dir = "../midi_database"
 
     # Path to the humming MIDI file
-    hummed_file = "../midi_testing/Evangelion - A Cruel Angel's Thesis.mid"
+    hummed_file = "../midi_testing/Dream_Police.1.mid"
 
     # Process the MIDI database with windowing
     features_dict = extract_database.process_midi_database(midi_database_dir)
