@@ -4,31 +4,27 @@ import axios from 'axios'
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
     const [file, setFile] = useState<File | null>(null)
-    const [isUploading, setIsUploading] = useState(false) // Track upload status
-    const [showModal, setShowModal] = useState(false) // Track modal visibility
+    const [isUploading, setIsUploading] = useState(false)
+    const [isModalMinimized, setIsModalMinimized] = useState(false)
+    const [isUploadComplete, setIsUploadComplete] = useState(false)
 
     const handleLoadDataset = async () => {
         if (file) {
-            setIsUploading(true) // Start the upload process
-            setShowModal(true) // Show the modal
-
+            setIsUploading(true) // Show modal and spinner
             const formData = new FormData()
             formData.append('file', file)
 
-            axios
-                .post('/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+            try {
+                await axios.post('/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 })
-                .then((res) => {
-                    console.log(res)
-                    setIsUploading(false) // Stop the upload process
-                })
-                .catch((err) => {
-                    console.log(err)
-                    setIsUploading(false) // Stop the upload process
-                })
+                console.log('Upload complete')
+                setIsUploadComplete(true) // Mark upload as complete
+            } catch (err) {
+                console.error('Upload failed', err)
+            } finally {
+                setIsUploading(false) // Hide spinner
+            }
         }
     }
 
@@ -44,12 +40,19 @@ function DatasetLoader() {
         }
     }
 
-    const handleCloseModal = () => {
-        setShowModal(false) // Close the modal when OK button is clicked
+    const toggleModalMinimize = () => {
+        setIsModalMinimized(!isModalMinimized)
+    }
+
+    const closeModal = () => {
+        setIsUploading(false)
+        setIsModalMinimized(false)
+        setIsUploadComplete(false)
     }
 
     return (
         <div className="flex flex-col">
+            {/* File Input */}
             <input
                 id="hidden-zip-input"
                 type="file"
@@ -58,6 +61,8 @@ function DatasetLoader() {
                 style={{ display: 'none' }}
             />
             {fileName && <p>Selected File: {fileName}</p>}
+
+            {/* Buttons */}
             <button onClick={handleButtonClick}>
                 {fileName ? 'Change Zip File' : 'Upload Zip File'}
             </button>
@@ -68,27 +73,56 @@ function DatasetLoader() {
                 Load Dataset
             </button>
 
-            {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="w-1/3 rounded-lg bg-white p-6 text-center shadow-lg">
-                        {isUploading && (
-                            <div className="flex items-center justify-center">
-                                <div className="h-16 w-16 animate-spin justify-center rounded-full border-b-4 border-t-4 border-solid border-blue-500"></div>
-                            </div>
+            {/* Modal */}
+            {(isUploading || isUploadComplete) && (
+                <div
+                    className={`fixed ${
+                        isModalMinimized
+                            ? 'bottom-4 right-4 h-12 w-48'
+                            : 'left-0 top-0 h-full w-full'
+                    } flex items-center justify-center bg-gray-700 bg-opacity-50 transition-all`}
+                >
+                    <div
+                        className={`rounded-lg bg-white p-6 shadow-lg ${
+                            isModalMinimized
+                                ? 'flex items-center justify-between'
+                                : 'flex flex-col'
+                        }`}
+                    >
+                        {/* Modal Content */}
+                        {isUploadComplete ? (
+                            <p>Finished Uploading</p>
+                        ) : isModalMinimized ? (
+                            <p>Uploading in background...</p>
+                        ) : (
+                            <p>Uploading... Please wait</p>
                         )}
-                        <p className="mt-4">
-                            {isUploading
-                                ? 'Uploading and Extracting...'
-                                : 'Upload Complete!'}
-                        </p>
-                        {!isUploading && (
-                            <button
-                                onClick={handleCloseModal}
-                                className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-white"
-                            >
-                                OK
-                            </button>
-                        )}
+
+                        <div className="mt-4 flex justify-center">
+                            {/* Spinner */}
+                            {!isUploadComplete && !isModalMinimized && (
+                                <div
+                                    className="h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
+                                    role="status"
+                                ></div>
+                            )}
+                            {/* Buttons */}
+                            {isUploadComplete ? (
+                                <button
+                                    onClick={closeModal}
+                                    className="ml-4 rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                >
+                                    OK
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={toggleModalMinimize}
+                                    className="ml-4 rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                >
+                                    {isModalMinimized ? 'Restore' : 'Minimize'}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
