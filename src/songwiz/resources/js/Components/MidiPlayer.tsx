@@ -5,9 +5,10 @@ interface MidiPlayerProps {
 }
 
 const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
-    const playerRef = useRef<HTMLDivElement | null>(null) // Reference to wrap the midi player component
+    const containerRef = useRef<HTMLDivElement | null>(null) // Reference to wrap the midi player container
     const [scriptLoaded, setScriptLoaded] = useState(false) // Track if the script has loaded
     const [midiUrl, setMidiUrl] = useState<string | null>(null) // State to store object URL for the midi file
+    const midiPlayerRef = useRef<any | null>(null) // Reference to the midi player instance
 
     useEffect(() => {
         // Dynamically load the external scripts
@@ -24,8 +25,9 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
             setScriptLoaded(false)
         }
         document.body.appendChild(script) // Append the script tag to the body to load it
+
         return () => {
-            document.body.removeChild(script) // Cleanup when component unmounts
+            document.body.removeChild(script) // Cleanup the script on unmount
         }
     }, [])
 
@@ -35,24 +37,45 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
             const url = URL.createObjectURL(midiFile)
             setMidiUrl(url)
         }
+
+        return () => {
+            // Cleanup the previous object URL
+            if (midiUrl) {
+                URL.revokeObjectURL(midiUrl)
+                setMidiUrl(null)
+            }
+        }
     }, [midiFile])
 
     useEffect(() => {
-        // Once the script is loaded, create the midi-player and midi-visualizer
-        if (scriptLoaded && playerRef.current && midiUrl) {
+        // Once the script is loaded, create the MIDI player
+        if (scriptLoaded && containerRef.current && midiUrl) {
+            // Remove any previous MIDI player
+            containerRef.current.innerHTML = ''
+
+            // Create and configure a new MIDI player
             const midiPlayer = document.createElement('midi-player')
-            midiPlayer.setAttribute('src', midiUrl) // Use the midiUrl here
+            midiPlayer.setAttribute('src', midiUrl)
             midiPlayer.setAttribute(
                 'sound-font',
                 'https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus'
             )
             midiPlayer.setAttribute('visualizer', '#myVisualizer')
-            playerRef.current.appendChild(midiPlayer)
+            containerRef.current.appendChild(midiPlayer)
 
-            // Cleanup old midi player and visualizer if re-rendered
+            // Store the reference to the player
+            midiPlayerRef.current = midiPlayer
+
+            // Cleanup the MIDI player on re-render
             return () => {
-                if (playerRef.current) {
-                    playerRef.current.innerHTML = ''
+                // Stop playback if the player exists
+                if (midiPlayerRef.current) {
+                    midiPlayerRef.current.stop?.()
+                    midiPlayerRef.current = null
+                }
+
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = ''
                 }
             }
         }
@@ -60,8 +83,7 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
 
     return (
         <div>
-            <div ref={playerRef}></div>{' '}
-            {/* This will hold the midi player and visualizer */}
+            <div ref={containerRef}></div>
         </div>
     )
 }
