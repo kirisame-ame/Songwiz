@@ -1,6 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { Head } from '@inertiajs/react'
-import AudioInput from '@/Components/AudioInput'
 import DatasetLoader from '@/Components/DatasetLoader'
 import MapperUpload from '@/Components/MapperUpload'
 
