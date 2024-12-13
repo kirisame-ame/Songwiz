@@ -52,7 +52,6 @@ function DatasetLoader() {
 
     return (
         <div className="flex flex-col">
-            {/* File Input */}
             <input
                 id="hidden-zip-input"
                 type="file"
@@ -62,7 +61,6 @@ function DatasetLoader() {
             />
             {fileName && <p>Selected File: {fileName}</p>}
 
-            {/* Buttons */}
             <button onClick={handleButtonClick}>
                 {fileName ? 'Change Zip File' : 'Upload Zip File'}
             </button>
@@ -73,7 +71,6 @@ function DatasetLoader() {
                 Load Dataset
             </button>
 
-            {/* Modal */}
             {(isUploading || isUploadComplete) && (
                 <div
                     className={`fixed ${
@@ -89,7 +86,6 @@ function DatasetLoader() {
                                 : 'flex flex-col'
                         }`}
                     >
-                        {/* Modal Content */}
                         {isUploadComplete ? (
                             <p>Finished Uploading</p>
                         ) : isModalMinimized ? (
@@ -99,14 +95,12 @@ function DatasetLoader() {
                         )}
 
                         <div className="mt-4 flex justify-center">
-                            {/* Spinner */}
                             {!isUploadComplete && !isModalMinimized && (
                                 <div
                                     className="h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
                                     role="status"
                                 ></div>
                             )}
-                            {/* Buttons */}
                             {isUploadComplete ? (
                                 <button
                                     onClick={closeModal}

@@ -44,7 +44,7 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
             midiPlayer.setAttribute('src', midiUrl) // Use the midiUrl here
             midiPlayer.setAttribute(
                 'sound-font',
-                'https://storage.googleapis.com/magentadata/js/soundfonts/salamander'
+                'https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus'
             )
             midiPlayer.setAttribute('visualizer', '#myVisualizer')
             playerRef.current.appendChild(midiPlayer)

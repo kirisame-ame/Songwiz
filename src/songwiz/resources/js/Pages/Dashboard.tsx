@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { Head } from '@inertiajs/react'
 import AudioInput from '@/Components/AudioInput'
 import DatasetLoader from '@/Components/DatasetLoader'
+import MapperUpload from '@/Components/MapperUpload'
 
 export default function Dashboard() {
     return (
@@ -31,7 +32,7 @@ export default function Dashboard() {
                                 Manage Mapper
                             </h1>
                             <div className="flex flex-row justify-center">
-                                <DatasetLoader />
+                                <MapperUpload />
                             </div>
                         </div>
                     </div>
