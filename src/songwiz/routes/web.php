@@ -19,7 +19,6 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/upload', [ZipUploadController::class, 'upload'])->name('upload');
-Route::get('/get-progress', [ZipUploadController::class, 'getProgress']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import UpArrowIcon from '@/svg/UpArrowIcon'
 
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
@@ -28,6 +29,7 @@ function DatasetLoader() {
         }
     }
 
+    const handleProcessDataset = async () => {}
     const handleButtonClick = () => {
         document.getElementById('hidden-zip-input')?.click()
     }
@@ -51,7 +53,7 @@ function DatasetLoader() {
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-row items-center gap-x-10">
             <input
                 id="hidden-zip-input"
                 type="file"
@@ -70,7 +72,13 @@ function DatasetLoader() {
             >
                 Load Dataset
             </button>
-
+            <button
+                onClick={handleProcessDataset}
+                className="border-1 flex items-center rounded-md bg-white px-2 text-lg text-black transition duration-200 hover:scale-110"
+            >
+                <UpArrowIcon />
+                <p>Process Dataset</p>
+            </button>
             {(isUploading || isUploadComplete) && (
                 <div
                     className={`fixed ${
