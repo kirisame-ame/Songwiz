@@ -37,6 +37,10 @@ export default function Database() {
         }
     };
 
+    const removeExtension = (filename: string) => {
+        return filename.split('.').slice(0, -1).join('.');
+    };
+
     return (
         <div className="min-h-screen pb-4 bg-[url('/images/background.jpeg')] bg-cover pt-3 text-black/70">
             <nav className="">
@@ -81,7 +85,10 @@ export default function Database() {
                             <SongCard
                                 key={track.id}
                                 image={'uploads/img/'+track.cover_path}
-                                title={track.name}
+                                title={removeExtension(track.name)}
+                                artist={track.artist}
+                                audio_type={track.audio_type}
+                                audio_path={track.audio_path}
                                 onPlay={() => console.log('Playing', track.name)}
                             />
                         ))}
