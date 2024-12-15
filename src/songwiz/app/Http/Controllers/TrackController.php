@@ -75,8 +75,12 @@ class TrackController extends Controller
     }
     public function index()
     {
-        $tracks = Track::all()->latest()->paginate(10);
-        return response()->json($tracks);
+        try {
+            $tracks = Track::latest()->paginate(8);
+            return response()->json($tracks);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
     public function store(Request $request):void
     {
