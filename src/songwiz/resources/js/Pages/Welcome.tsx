@@ -59,6 +59,13 @@ export default function Welcome({
                                         </Link>
                                     </>
                                 )}
+
+                                <Link
+                                    href={route('database')}
+                                    className="rounded-md px-10 py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                >
+                                    Database
+                                </Link>
                             </nav>
                         </header>
 
