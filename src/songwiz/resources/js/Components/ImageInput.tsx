@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import SearchIcon from '@/svg/SearchIcon'
+import axios from 'axios'
 
 function CustomFileInput() {
+    const [file, setFile] = useState<File | null>(null)
     const [fileName, setFileName] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
 
     // Handle file change
     const handleFileChange = (event: any) => {
-        const file = event.target.files[0]
+        setFile(event.target.files[0])
         if (file) {
             setFileName(file.name) // Update the file name display
             if (file.type.startsWith('image/')) {
@@ -23,6 +25,20 @@ function CustomFileInput() {
     const handleButtonClick = () => {
         // @ts-ignore
         document.getElementById('hidden-file-input').click()
+    }
+    const handleImageQuery = async () => {
+        if (file) {
+            const formData = new FormData()
+            formData.append('file', file)
+            try {
+                await axios.post('/image-query', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                console.log('Upload complete')
+            } catch (err) {
+                console.error('Upload failed', err)
+            }
+        }
     }
 
     return (
@@ -56,7 +72,10 @@ function CustomFileInput() {
             <div
                 className={`flex w-full items-center justify-center pt-2 ${previewUrl ? '' : 'hidden'}`}
             >
-                <button className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150">
+                <button
+                    onClick={handleImageQuery}
+                    className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150"
+                >
                     <SearchIcon />
                     <p>Search</p>
                 </button>

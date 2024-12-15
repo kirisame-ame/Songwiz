@@ -31,10 +31,12 @@ class TrackController extends Controller
         }
         return $res;
     }
-    public function extractImageFeatures(String $path)
+    public function extractImageFeatures(Request $request)
     {
-
-
+        $validated = $request->validate([
+            'file' => 'required | file',
+        ]);
+        $path = $validated['file']->getClientOriginalName();
         $scriptPath = base_path('scripts/image_dataset_processor.py');
         $imageDirPath = public_path('uploads/img');
         $imagePath = $imageDirPath . '/' . $path;
