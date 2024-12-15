@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { Head } from '@inertiajs/react'
-import AudioInput from '@/Components/AudioInput'
 import DatasetLoader from '@/Components/DatasetLoader'
+import MapperUpload from '@/Components/MapperUpload'
 
 export default function Dashboard() {
     return (
@@ -16,22 +16,27 @@ export default function Dashboard() {
 
             <div className="">
                 <div className="mx-auto max-w-7xl rounded-lg border-2 border-gray-50 bg-gray-50/50 sm:px-6 lg:px-8">
-                    <div className="flex flex-row justify-around">
-                        <div className="px-auto flex flex-col justify-center p-6 text-black/70">
-                            <h1 className="text-3xl font-bold">
-                                Manage Dataset
-                            </h1>
+                    <div className="flex flex-col justify-center">
+                        <div className="px-auto flex flex-row items-center p-6 text-black/70">
+                            <div className="flex flex-1">
+                                <h1 className="text-3xl font-bold">
+                                    Manage Dataset
+                                </h1>
+                            </div>
+
                             <div className="flex flex-row justify-center">
                                 <DatasetLoader />
                             </div>
                         </div>
+                        <div className="px-auto flex flex-row items-center p-6 text-black/70">
+                            <div className="flex flex-1">
+                                <h1 className="text-3xl font-bold">
+                                    Manage Mapper
+                                </h1>
+                            </div>
 
-                        <div className="px-auto p-6 text-black/70">
-                            <h1 className="text-3xl font-bold">
-                                Manage Mapper
-                            </h1>
                             <div className="flex flex-row justify-center">
-                                <DatasetLoader />
+                                <MapperUpload />
                             </div>
                         </div>
                     </div>

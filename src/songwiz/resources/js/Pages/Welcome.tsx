@@ -102,7 +102,19 @@ export default function Welcome({
                                             <ImageInput />
                                         ) : (
                                             <p className="text-center text-3xl">
-                                                Choose Audio or Image
+                                                Find a{' '}
+                                                <span className="font-bold text-[#128bfb]">
+                                                    Song
+                                                </span>{' '}
+                                                by{' '}
+                                                <span className="font-semibold">
+                                                    Audio/MIDI
+                                                </span>{' '}
+                                                or
+                                                <span className="font-semibold">
+                                                    {' '}
+                                                    Image
+                                                </span>
                                             </p>
                                         )}
                                     </div>

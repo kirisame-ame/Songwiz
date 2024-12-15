@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import UpArrowIcon from '@/svg/UpArrowIcon'
 
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
@@ -28,6 +29,7 @@ function DatasetLoader() {
         }
     }
 
+    const handleProcessDataset = async () => {}
     const handleButtonClick = () => {
         document.getElementById('hidden-zip-input')?.click()
     }
@@ -51,8 +53,7 @@ function DatasetLoader() {
     }
 
     return (
-        <div className="flex flex-col">
-            {/* File Input */}
+        <div className="flex flex-row items-center gap-x-10">
             <input
                 id="hidden-zip-input"
                 type="file"
@@ -62,7 +63,6 @@ function DatasetLoader() {
             />
             {fileName && <p>Selected File: {fileName}</p>}
 
-            {/* Buttons */}
             <button onClick={handleButtonClick}>
                 {fileName ? 'Change Zip File' : 'Upload Zip File'}
             </button>
@@ -72,8 +72,13 @@ function DatasetLoader() {
             >
                 Load Dataset
             </button>
-
-            {/* Modal */}
+            <button
+                onClick={handleProcessDataset}
+                className="border-1 flex items-center rounded-md bg-white px-2 text-lg text-black transition duration-200 hover:scale-110"
+            >
+                <UpArrowIcon />
+                <p>Process Dataset</p>
+            </button>
             {(isUploading || isUploadComplete) && (
                 <div
                     className={`fixed ${
@@ -89,7 +94,6 @@ function DatasetLoader() {
                                 : 'flex flex-col'
                         }`}
                     >
-                        {/* Modal Content */}
                         {isUploadComplete ? (
                             <p>Finished Uploading</p>
                         ) : isModalMinimized ? (
@@ -99,14 +103,12 @@ function DatasetLoader() {
                         )}
 
                         <div className="mt-4 flex justify-center">
-                            {/* Spinner */}
                             {!isUploadComplete && !isModalMinimized && (
                                 <div
                                     className="h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
                                     role="status"
                                 ></div>
                             )}
-                            {/* Buttons */}
                             {isUploadComplete ? (
                                 <button
                                     onClick={closeModal}
