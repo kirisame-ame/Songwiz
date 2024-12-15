@@ -18,9 +18,8 @@ return new class extends Migration
             $table->string('audio_path');
             $table->string('audio_type');
             $table->string('artist');
-            $table->vector('pca_score',50);
             $table->vector('midi_score',3);
-            $table->vector('wav_score');
+            $table->vector('wav_score',3);
             $table->timestamps();
         });
     }

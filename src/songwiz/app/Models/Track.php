@@ -15,12 +15,10 @@ class Track extends Model
         'audio_path',
         'audio_type',
         'artist',
-        'pca_score',
         'midi_score',
         'wav_score',
     ];
     protected $casts = [
-        'pca_score' => Vector::class,
         'midi_score' => Vector::class,
         'wav_score' => Vector::class,
     ];
