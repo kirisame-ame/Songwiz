@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
 function MapperUpload() {
     const [fileName, setFileName] = useState('')
@@ -13,13 +14,23 @@ function MapperUpload() {
     const handleButtonClick = () => {
         document.getElementById('hidden-mapper-input')?.click()
     }
-    const handleLoadMapper = () => {
+    const handleLoadMapper = async () => {
         if (file) {
-            console.log('Load Mapper:', file)
+            const formData = new FormData()
+            formData.append('file', file)
+
+            try {
+                await axios.post('/upload-json', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                console.log('Upload complete')
+            } catch (err) {
+                console.error('Upload failed', err)
+            }
         }
     }
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-row items-center gap-x-10">
             <input
                 id="hidden-mapper-input"
                 type="file"
@@ -36,7 +47,7 @@ function MapperUpload() {
                 onClick={handleLoadMapper}
                 className={fileName ? 'block' : 'hidden'}
             >
-                Load Dataset
+                Load Mapper
             </button>
         </div>
     )

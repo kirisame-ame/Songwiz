@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Track;
 use Illuminate\Http\Request;
+use Inertia\Response;
 use Pgvector\Vector;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -16,7 +17,7 @@ class TrackController extends Controller
             $res = new Vector([1, 2, 3]);
 
         } else {
-            $res = null;
+            $res = new Vector([0,0,0]);
         }
         return $res;
     }
@@ -26,33 +27,49 @@ class TrackController extends Controller
             $res = new Vector([1, 2, 3]);
 
         } else {
-            $res = null;
+            $res = new Vector([0,0,0]);
         }
         return $res;
     }
-    public function extractImageFeatures(String $path, ): ?array
+    public function extractImageFeatures(String $path)
     {
-        $scriptPath = base_path('scripts/extract_image_features.py');
-        $imagePath = public_path('uploads/img/' . $path);
+
+
+        $scriptPath = base_path('scripts/image_dataset_processor.py');
+        $imageDirPath = public_path('uploads/img');
+        $imagePath = $imageDirPath . '/' . $path;
         if (!file_exists($imagePath)) {
             throw new \RuntimeException("Image file does not exist at path: $imagePath");
         }
 
-        $process = new Process(['python', $scriptPath, $imagePath, $imageAvg]);
+        $process = new Process(['python', $scriptPath, $imageDirPath, $path]);
 
         try {
             $process->mustRun();
 
-            $output = json_decode($process->getOutput(), true);
+            $output = $process->getOutput();
+            $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
 
-            if (!is_array($output)) {
-                throw new \RuntimeException("Invalid output from Python script");
+            $similarImages = $result['similar_images'];
+
+            $similarImagesMetadata = [];
+            foreach ($similarImages as $similarImage) {
+                $metadata = Track::where('cover_path', $similarImage)->first();
+                if ($metadata) {
+                    $similarImagesMetadata[] = [
+                        'name' => $metadata->name,
+                        'artist' => $metadata->artist,
+                        'cover_path' => $metadata->cover_path,
+                        'audio_path' => $metadata->audio_path,
+                        'audio_type' => $metadata->audio_type,
+                    ];
+                }
             }
-
-            return $output;
+            return response()->json(['similar_images' => $similarImagesMetadata]);
         } catch (ProcessFailedException | \Exception $exception) {
-            throw new \RuntimeException("Failed to extract image features: " . $exception->getMessage());
+            return response()->json(['error' => $exception->getMessage()]);
         }
+
     }
     public function index()
     {
@@ -62,9 +79,11 @@ class TrackController extends Controller
     public function store(Request $request):void
     {
         $validated = $request->validate([
-            'data'=>'required | json',
+            'file'=>'required | file',
         ]);
-        $data = json_decode($validated['data'], true, 512, JSON_THROW_ON_ERROR);
+        $file = $validated['file'];
+        $jsonData = file_get_contents($file->getRealPath());
+        $data = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
         $records = [];
         foreach($data as $track){
             if (!str_contains($track['audio_path'], '-')) {

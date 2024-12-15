@@ -21,7 +21,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/upload', [ZipUploadController::class, 'upload'])->name('upload');
-Route::post('/process', [TrackController::class, 'store'])->name('tracks.store');
+Route::post('/upload-json', [TrackController::class, 'store'])->name('tracks.store');
+Route::post('/image-query', [TrackController::class, 'extractImageFeatures'])->name('image-query');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
