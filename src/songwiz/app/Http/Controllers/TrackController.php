@@ -36,24 +36,22 @@ class TrackController extends Controller
         $validated = $request->validate([
             'file' => 'required | file',
         ]);
-        $path = $validated['file']->getClientOriginalName();
+        copy($validated['file']->getRealPath(), public_path('temp/').$validated['file']->getClientOriginalName());
         $scriptPath = base_path('scripts/image_dataset_processor.py');
         $imageDirPath = public_path('uploads/img');
-        $imagePath = $imageDirPath . '/' . $path;
+        $imagePath = public_path('temp/') . $validated['file']->getClientOriginalName();
         if (!file_exists($imagePath)) {
             throw new \RuntimeException("Image file does not exist at path: $imagePath");
         }
 
-        $process = new Process(['python', $scriptPath, $imageDirPath, $path]);
+        $process = new Process(['python', $scriptPath, $imageDirPath, $imagePath]);
 
         try {
             $process->mustRun();
-
             $output = $process->getOutput();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
 
             $similarImages = $result['similar_images'];
-
             $similarImagesMetadata = [];
             foreach ($similarImages as $similarImage) {
                 $metadata = Track::where('cover_path', $similarImage)->first();
@@ -67,10 +65,17 @@ class TrackController extends Controller
                     ];
                 }
             }
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
             return response()->json(['similar_images' => $similarImagesMetadata]);
         } catch (ProcessFailedException | \Exception $exception) {
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
             return response()->json(['error' => $exception->getMessage()]);
         }
+
 
     }
     public function index()
@@ -103,8 +108,6 @@ class TrackController extends Controller
                 'audio_path'=>$track['audio_path'],
                 'audio_type'=>$track['audio_type'],
                 'artist'=>$artist,
-                'midi_score'=>$this->extractMidiFeatures($track['audio_path'],$track['audio_type']),
-                'wav_score'=>$this->extractWavFeatures($track['audio_path'],$track['audio_type']),
             ];
         }
         Track::insert($records);

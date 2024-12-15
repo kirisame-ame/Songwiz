@@ -2,18 +2,31 @@ import React, { useState } from 'react'
 import SearchIcon from '@/svg/SearchIcon'
 import axios from 'axios'
 
-function CustomFileInput() {
+interface TrackDataProps {
+    setTrackData: (trackData: any[]) => void
+}
+interface TrackData {
+    name: string
+    artist: string
+    cover_path: string
+    audio_path: string
+    audio_type: string
+    score: number
+}
+
+const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [file, setFile] = useState<File | null>(null)
     const [fileName, setFileName] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
 
     // Handle file change
     const handleFileChange = (event: any) => {
-        setFile(event.target.files[0])
-        if (file) {
-            setFileName(file.name) // Update the file name display
-            if (file.type.startsWith('image/')) {
-                const url = URL.createObjectURL(file)
+        const selectedFile = event.target.files[0]
+        if (selectedFile) {
+            setFile(event.target.files[0])
+            setFileName(selectedFile.name) // Update the file name display
+            if (selectedFile.type.startsWith('image/')) {
+                const url = URL.createObjectURL(selectedFile)
                 setPreviewUrl(url)
             } else {
                 setPreviewUrl('null')
@@ -31,9 +44,26 @@ function CustomFileInput() {
             const formData = new FormData()
             formData.append('file', file)
             try {
-                await axios.post('/image-query', formData, {
+                const response = await axios.post('/image-query', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 })
+                const data = response.data
+                const trackData: TrackData[] = []
+                let i: number = 0
+                Object.keys(data).forEach((key) => {
+                    const track = data[key]
+                    trackData.push({
+                        name: track[i]['name'],
+                        artist: track[i]['artist'],
+                        cover_path: track[i]['cover_path'],
+                        audio_path: track[i]['audio_path'],
+                        audio_type: track[i]['audio_type'],
+                        score: 0,
+                    })
+                    i += 1
+                })
+                console.log(trackData)
+                setTrackData(trackData)
                 console.log('Upload complete')
             } catch (err) {
                 console.error('Upload failed', err)

@@ -17,7 +17,6 @@ def load_images_from_directory(image_database_dir, target_size=(64, 64)):
             img_resized = img.resize(target_size)   # Resize to target size
             images.append(np.array(img_resized).flatten())  # Flatten to 1D
             filenames.append(file)
-
     return np.array(images), filenames
 
 def standardize_data(images):
@@ -35,7 +34,7 @@ def calculate_pca(data, num_components):
     principal_components = Vt[:num_components]
     return np.dot(data, principal_components.T), principal_components
 
-def retrieve_similar_images(query_image, image_database_dir, num_pca_components=50, top_n=5, target_size=(64, 64), similarity_threshold=0.7):
+def retrieve_similar_images(query_image, image_database_dir, num_pca_components=50, top_n=5, target_size=(64, 64), similarity_threshold=0):
     """
     Retrieve the most similar images to a query image based on PCA-reduced features,
     with an optional similarity threshold for filtering.
@@ -50,7 +49,6 @@ def retrieve_similar_images(query_image, image_database_dir, num_pca_components=
     dataset_pca, principal_components = calculate_pca(standardized_images, num_pca_components)
 
     # Save precomputed data
-    save_precomputed_data(save_dir, mean_image, principal_components, dataset_pca, filenames)
 
     # Process query image
     query_image_obj = Image.open(query_image).convert('L')  # Convert to grayscale
@@ -62,19 +60,19 @@ def retrieve_similar_images(query_image, image_database_dir, num_pca_components=
     query_image_pca = np.dot(query_image_standardized, principal_components.T)
 
     # Compute distances between query image and dataset images
-       distances = np.linalg.norm(dataset_pca - query_image_pca, axis=1)
-       max_distance = np.max(distances)
+    distances = np.linalg.norm(dataset_pca - query_image_pca, axis=1)
+    max_distance = np.max(distances)
 
-       # Convert distances to similarity rates
-       similarity_rates = 1 - (distances / max_distance)
+    # Convert distances to similarity rates
+    similarity_rates = 1 - (distances / max_distance)
 
-       # Filter out images that do not meet the similarity threshold
-       filtered_results = [(filenames[i], similarity_rates[i]) for i in range(len(similarity_rates)) if similarity_rates[i] >= similarity_threshold]
+    # Filter out images that do not meet the similarity threshold
+    filtered_results = [(filenames[i], similarity_rates[i]) for i in range(len(similarity_rates)) if similarity_rates[i] >= similarity_threshold]
 
-       # Sort the filtered results by similarity and get top N
-       top_indices = np.argsort([similarity for _, similarity in filtered_results])[-top_n:][::-1]
-       result = {'similar_images':[{'filename':filtered_results[i][0], 'similarity':filtered_results[i][1]} for i in top_indices]}
-       return json.dumps(result)
+    # Sort the filtered results by similarity and get top N
+    top_indices = np.argsort([similarity for _, similarity in filtered_results])[-top_n:][::-1]
+    result = {'similar_images':[{'filename':filtered_results[i][0], 'similarity':filtered_results[i][1]} for i in top_indices]}
+    return json.dumps(result)
 
 if __name__ == "__main__":
     image_database_dir = sys.argv[1]
