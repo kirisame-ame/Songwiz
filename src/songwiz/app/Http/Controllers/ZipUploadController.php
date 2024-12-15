@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Track;
 use Illuminate\Http\Request;
 use ZipArchive;
 
@@ -33,6 +34,7 @@ class ZipUploadController extends Controller
                         };
                         // Extract the file to the target directory
                         copy('zip://' . $zipFile->getRealPath() . '#' . $fileName, $targetDir . $cleanFileName);
+
                     }
                 }
 
