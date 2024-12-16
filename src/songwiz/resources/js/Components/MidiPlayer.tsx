@@ -63,7 +63,7 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
             midiPlayer.setAttribute('visualizer', '#myVisualizer')
 
             // Apply styles directly to the MIDI player
-            midiPlayer.style.width = '200px'  
+            midiPlayer.style.width = '280px'  
             midiPlayer.style.height = '50px'  
 
             containerRef.current.appendChild(midiPlayer)
@@ -87,7 +87,12 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
     }, [scriptLoaded, midiUrl])
 
     return (
-        <div>
+        <div style= {{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+        }}>
             <div ref={containerRef}></div>
         </div>
     )
