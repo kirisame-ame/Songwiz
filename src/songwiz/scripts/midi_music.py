@@ -2,9 +2,10 @@ import numpy as np
 from mido import MidiFile
 import pickle
 import os
-import cache
+import midi_cache as cache
 from multiprocessing import Pool, cpu_count
-from numba import njit
+
+
 
 
 # 1. Function to read melody from MIDI file with onset times
@@ -28,7 +29,6 @@ def extract_melody_from_midi(file_path, channel=0):
                     onset_times.append(onset_time)
     return melody, onset_times
 
-@njit()
 # 2. Normalize Pitch (relative to the first note for transposition invariance)
 def normalize_pitch(pitch_sequence):
     """
@@ -107,7 +107,6 @@ def extract_features(pitch_sequence, time_intervals):
     ])
     return combined_features
 
-@njit(parallel=True)
 #return np.concatenate([atb_histogram_normalized,rtb_histogram_normalized,ftb_histogram_normalized])
 # 5. Cosine Similarity Calculation
 def calculate_cosine_similarity(vector1, vector2):
@@ -138,7 +137,7 @@ def sliding_window(sequence, time_intervals, window_size, stride):
 
 
 # 7. Process a Single MIDI File (Helper for Parallel Processing)
-def process_single_midi(args,cache_dir="feature_cache"):
+def process_single_midi(args,cache_dir):
     """
     Process a single MIDI file and extract features, with caching.
     """
@@ -192,9 +191,8 @@ def process_single_midi(args,cache_dir="feature_cache"):
         return midi_file, np.array(features_list)
 
     except Exception as e:
-        print(f"Error processing {midi_file}: {e}")
         return None, None
-    
+
 #8 PROSES SEMUA MIDI DI CACHE
 def process_midi_database(midi_database_dir, window_size=20, stride=4,cache_dir="feature_cache"):
     """
@@ -292,9 +290,8 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_d
         max_score = np.max(cosine_similarities)
         if np.isnan(max_score) or np.isinf(max_score):
             max_score = 0.0
-        similarity_scores[midi_file] = max_score
+        similarity_scores[midi_file] = str(max_score)
 
     # Sort results based on similarity scores
     ranked_results = dict(sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True))
-
     return ranked_results

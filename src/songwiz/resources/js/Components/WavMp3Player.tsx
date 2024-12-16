@@ -62,8 +62,8 @@ const WavMp3Player: React.FC<WavMp3PlayerProps> = ({ audioFile }) => {
     }, []);
 
     return (
-        <div>
-            <audio ref={audioRef} controls />
+        <div className='flex justify-center'>
+            <audio ref={audioRef} controls style={{ width: '100%', maxWidth: '280px' }} />
         </div>
     );
 };

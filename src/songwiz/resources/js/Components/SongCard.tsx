@@ -72,11 +72,15 @@ const SongCard: React.FC<SongCardProps> = ({ image, title, artist, audio_type, a
             </div>  
             <div className="mb-4 flex items-center justify-center">
                 {isPlaying && (audio_type === 'midi' || audio_type === 'mid') && (
-                    <MidiPlayer midiFile={audioFile}/>
+                    <div className="w-full max-w-xs">
+                        <MidiPlayer midiFile={audioFile}/>
+                    </div>
                 )}  
 
                 {isPlaying && (audio_type === 'wav' || audio_type === 'mp3') && (
-                    <WavMp3Player audioFile={audioFile}/>
+                    <div className="w-full max-w-xs">
+                        <WavMp3Player audioFile={audioFile}/>
+                    </div>
                 )}
                 {!isPlaying && (
                 <button

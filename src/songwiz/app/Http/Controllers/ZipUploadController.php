@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Track;
 use Illuminate\Http\Request;
 use ZipArchive;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
 
 class ZipUploadController extends Controller
 {
@@ -53,5 +56,17 @@ class ZipUploadController extends Controller
         }
 
         return response()->json(['message' => 'No file uploaded'], 400);
+    }
+    public function cache(Request $request){
+        $midi_dir = public_path('uploads/midi');
+        $cache_dir = public_path('midi_cache');
+        $scriptPath = base_path('scripts/midi_driver.py');
+        $process = new Process(['python', $scriptPath, $midi_dir, $cache_dir]);
+        try{
+            $process->mustRun();
+            return response()->json(['message' => 'MIDI files cached successfully'], 200);
+        } catch (ProcessFailedException $exception) {
+            return response()->json(['message' => 'Failed to cache MIDI files', 'error' => $exception->getMessage()], 500);
+        }
     }
 }

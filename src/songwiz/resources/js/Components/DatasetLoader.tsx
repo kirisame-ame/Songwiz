@@ -29,7 +29,18 @@ function DatasetLoader() {
         }
     }
 
-    const handleProcessDataset = async () => {}
+    const handleProcessDataset = async () => {
+        setIsUploading(true)
+        try {
+            await axios.post('/cache')
+            console.log('Processing complete')
+            setIsUploadComplete(true)
+        } catch (err) {
+            console.error('Processing failed', err)
+        } finally {
+            setIsUploading(false)
+        }
+    }
     const handleButtonClick = () => {
         document.getElementById('hidden-zip-input')?.click()
     }

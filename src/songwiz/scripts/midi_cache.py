@@ -1,8 +1,8 @@
 import os
 import pickle
-import music
+import midi_music as music
 from multiprocessing import Pool, cpu_count
-
+import json
 def get_feature_cache_path(file_path, cache_dir):
     """
     Mendapatkan path file cache berdasarkan nama file MIDI.
@@ -39,7 +39,7 @@ def extract_features_with_cache(file_path, window_size=20, stride=4, cache_dir="
         return cached_features
 
     # Jika belum dicache, proses MIDI untuk mengekstraksi fitur
-    midi_file, features_list = music.process_single_midi((file_path, window_size, stride))
+    midi_file, features_list = music.process_single_midi((file_path, window_size, stride),cache_dir)
     if features_list is not None:
         save_features_to_cache(file_path, features_list, cache_dir)
     return features_list
@@ -50,12 +50,13 @@ def cache_single_file(args):
     Argumen berupa tuple (file_path, window_size, stride, cache_dir).
     """
     file_path, window_size, stride, cache_dir = args
-    return music.process_single_midi((file_path, window_size, stride))
+    return music.process_single_midi((file_path, window_size, stride),cache_dir)
 
 def cache_all_features(midi_database_dir, window_size=20, stride=4, cache_dir="feature_cache"):
     """
     Cache semua fitur dari file MIDI di direktori.
     """
+    print(cache_dir + "1 " + midi_database_dir)
     midi_files = [
         os.path.join(midi_database_dir, f)
         for f in os.listdir(midi_database_dir)
