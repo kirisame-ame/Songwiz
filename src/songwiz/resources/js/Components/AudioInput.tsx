@@ -17,6 +17,7 @@ interface TrackData {
 const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [fileName, setFileName] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
+    const [audioFile, setAudioFile] = useState<File | null>(null)
     const [midiFile, setMidiFile] = useState<File | null>(null)
     const [recordedAudioUrl, setRecordedAudioUrl] = useState('')
     const [isRecording, setIsRecording] = useState(false)
@@ -35,6 +36,38 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
             formData.append('file', midiFile)
             try {
                 const response = await axios.post('/midi-query', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                const data = response.data
+                console.log(data)
+                const trackData: TrackData[] = []
+                Object.keys(data).forEach((key) => {
+                    const trackArray = data[key] // Assuming this is an array of track objects
+                    trackArray.forEach((track: any) => {
+                        trackData.push({
+                            name: track['name'],
+                            artist: track['artist'],
+                            cover_path: track['cover_path'],
+                            audio_path: track['audio_path'],
+                            audio_type: track['audio_type'],
+                            score: track['score'],
+                        })
+                    })
+                })
+                setTrackData(trackData)
+                setIsUploadComplete(true)
+                console.log('Upload complete')
+            } catch (err) {
+                console.error('Upload failed', err)
+            } finally {
+                setIsUploading(false)
+            }
+        } else if (audioFile) {
+            setIsUploading(true)
+            const formData = new FormData()
+            formData.append('file', audioFile)
+            try {
+                const response = await axios.post('/audio-query', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 })
                 const data = response.data
@@ -85,18 +118,21 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                 file.type.startsWith('audio/mpeg') ||
                 file.type.startsWith('audio/wav')
             ) {
+                setAudioFile(file)
                 const url = URL.createObjectURL(file)
-                setPreviewUrl(url) // Audio playback URL
-                setMidiFile(null) // Clear MIDI file if audio is selected
+                setPreviewUrl(url)
+                setMidiFile(null)
             } else if (
                 file.name.endsWith('.midi') ||
                 file.name.endsWith('.mid')
             ) {
                 setPreviewUrl('') // Clear audio preview
+                setAudioFile(null)
                 setMidiFile(file) // Store the MIDI file for playback
             } else {
                 setPreviewUrl('') // Clear any preview URL for unsupported file types
                 setMidiFile(null)
+                setAudioFile(null)
             }
         }
     }

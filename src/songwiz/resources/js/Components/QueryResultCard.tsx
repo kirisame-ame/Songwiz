@@ -86,8 +86,10 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     className="flex flex-row items-center justify-between rounded-lg bg-gray-50/50 p-4 shadow-lg"
                 >
                     <div className="flex w-3/4 items-center">
-                        <div className="flex flex-1 items-center">
-                            <p className="flex w-16 text-6xl">{index + 1}</p>
+                        <div className="flex items-center">
+                            <p className="flex w-16 flex-1 text-6xl">
+                                {index + 1}
+                            </p>
                             <img
                                 src={'uploads/img/' + track.cover_path}
                                 alt={track.name}

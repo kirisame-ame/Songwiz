@@ -61,12 +61,18 @@ class ZipUploadController extends Controller
         $midi_dir = public_path('uploads/midi');
         $cache_dir = public_path('midi_cache');
         $scriptPath = base_path('scripts/midi_driver.py');
+        $audio_dir = public_path('uploads/audio');
+        $audioScript = base_path('scripts/audio_cache.py');
+        $audioCacheDir = public_path('audio_cache');
         $process = new Process(['python', $scriptPath, $midi_dir, $cache_dir]);
+        $process2 = new Process(['python', $audioScript, $audio_dir, $audioCacheDir]);
         try{
             $process->mustRun();
-            return response()->json(['message' => 'MIDI files cached successfully'], 200);
+            $process2->mustRun();
+            return response()->json(['message' => 'files cached successfully'], 200);
         } catch (ProcessFailedException $exception) {
             return response()->json(['message' => 'Failed to cache MIDI files', 'error' => $exception->getMessage()], 500);
         }
+
     }
 }
