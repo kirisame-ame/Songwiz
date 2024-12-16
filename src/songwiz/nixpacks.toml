@@ -2,5 +2,5 @@
 # Customize the PHP configuration
 cmds = ['...',
     "echo \"<<<<<<<<<<<<< CHANGING THE PHP INI >>>>>>>>>>>>>>\"" ,
-    "PHP_INI_PATH=$(php -i | grep '/php.ini' | awk '{print $6}') && echo -e '\nupload_max_filesize = 1G\npost_max_size = 1G' >> $PHP_INI_PATH",
+    "PHP_INI_PATH=$(php -i | grep '/php.ini' | awk '{print $6}') && echo -e '\nUPLOAD_MAX_FILESIZE = 1G\nPOST_MAX_SIZE = 1G' >> $PHP_INI_PATH",
 ]
