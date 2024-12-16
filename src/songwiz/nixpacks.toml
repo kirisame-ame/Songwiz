@@ -1,13 +1,6 @@
-[variables]
-    UPLOAD_MAX_FILESIZE = '2000M'
-    POST_MAX_SIZE = '2000M'
-
-[phases.setup]
-    cmds = ['PHP_INI_PATH=$(php --ini | grep "Additional .ini files parsed:" | cut -d: -f2 | tr -d " "); echo "PHP_INI_PATH is $PHP_INI_PATH"; echo "upload_max_filesize=2000M" >> $PHP_INI_PATH; echo "post_max_size=2000M" >> $PHP_INI_PATH; echo "Content of php.ini below:"; cat "$PHP_INI_PATH"']
-
-[phases.postbuild]
-cmds = [
-    "php /app/artisan optimize:clear",
-    "php /app/artisan migrate --force",
+[phases.build]
+# Customize the PHP configuration
+cmds = ['...',
+    "echo \"<<<<<<<<<<<<< CHANGING THE PHP INI >>>>>>>>>>>>>>\"" ,
+    "PHP_INI_PATH=$(php -i | grep '/php.ini' | awk '{print $6}') && echo -e '\nupload_max_filesize = 1G\npost_max_size = 1G' >> $PHP_INI_PATH",
 ]
-dependsOn = ["build"]
