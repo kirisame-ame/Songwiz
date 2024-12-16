@@ -5,11 +5,13 @@ Proyek ini bertujuan untuk melakukan perbandingan kemiripan musik berdasarkan fi
 - RTB (Relative Tone-Based) Histogram
 - FTB (First Tone-Based) Histogram
 
+Selain itu Proyek ini juga dapat mencari suatu album musik berdasarkan image masukan.
+
 ## Fitur
-Mengekstraksi Fitur dari File MIDI: Program ini membaca file MIDI, memproses data, dan mengekstrak fitur-fitur seperti Absolute Tone-Based (ATB), Relative Tone-Based (RTB), dan First Tone-Based (FTB) histogram.
-Cosine Similarity: Program ini menghitung cosine similarity antara fitur dari file MIDI query dan file MIDI dalam database.
-Pemrosesan Secara Konkuren: Proyek ini mendukung pemrosesan secara konkuren untuk mempercepat komputasi menggunakan concurrent.futures.ProcessPoolExecutor milik Python.
-Progress Bar: Menyediakan progress bar selama pemrosesan database untuk melacak kemajuan pemrosesan file dan perbandingan query.
+- Mengekstraksi Fitur dari File MIDI: Program ini membaca file MIDI, memproses data, dan mengekstrak fitur-fitur seperti Absolute Tone-Based (ATB), Relative Tone-Based (RTB), dan First Tone-Based (FTB) histogram.
+- Cosine Similarity: Program ini menghitung cosine similarity antara fitur dari file MIDI query dan file MIDI dalam database.
+- Pemrosesan Secara Konkuren: Proyek ini mendukung pemrosesan secara konkuren untuk mempercepat komputasi menggunakan concurrent.futures.ProcessPoolExecutor milik Python.
+- PCA : digunakan untuk menyederhanakan hasil ekstrak fitur dari image.
 
 ## Instalasi
 Untuk memulai dengan proyek ini, Anda perlu memastikan bahwa Python 3.7+ terinstal. Kemudian, Anda dapat menginstal dependensi yang dibutuhkan dengan menggunakan pip.
