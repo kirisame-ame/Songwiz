@@ -61,6 +61,11 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
                 'https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus'
             )
             midiPlayer.setAttribute('visualizer', '#myVisualizer')
+
+            // Apply styles directly to the MIDI player
+            midiPlayer.style.width = '200px'  
+            midiPlayer.style.height = '50px'  
+
             containerRef.current.appendChild(midiPlayer)
 
             // Store the reference to the player
