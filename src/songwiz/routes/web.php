@@ -22,6 +22,7 @@ Route::get('/dashboard', function () {
 
 Route::post('/upload', [ZipUploadController::class, 'upload'])->name('upload');
 Route::post('/upload-json', [TrackController::class, 'store'])->name('tracks.store');
+Route::post('/cache', [ZipUploadController::class, 'cache'])->name('cache');
 Route::post('/image-query', [TrackController::class, 'extractImageFeatures'])->name('image-query');
 
 Route::middleware('auth')->group(function () {
