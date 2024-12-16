@@ -5,21 +5,53 @@ namespace App\Http\Controllers;
 use App\Models\Track;
 use Illuminate\Http\Request;
 use Inertia\Response;
-use Pgvector\Vector;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class TrackController extends Controller
 {
-    public function extractMidiFeatures(String $path,String $type):Vector
+    public function extractMidiFeatures(Request $request)
     {
-        if ($type === 'midi' || $type === 'mid') {
-            $res = new Vector([1, 2, 3]);
-
-        } else {
-            $res = new Vector([0,0,0]);
+        $validated = $request->validate([
+            'file' => 'required | file|mimes:mid',
+        ]);
+        copy($validated['file']->getRealPath(), public_path('temp/') . $validated['file']->getClientOriginalName());
+        $scriptPath = base_path('scripts/midi_query.py');
+        $midiDirPath = public_path('uploads/midi');
+        $midiPath = public_path('temp/') . $validated['file']->getClientOriginalName();
+        $cache_path = public_path('midi_cache');
+        if (!file_exists($midiPath)) {
+            throw new \RuntimeException("Midi file does not exist at path: $midiPath");
         }
-        return $res;
+        $process = new Process(['python', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
+        try {
+            $process->mustRun();
+            $output = $process->getOutput();
+            $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
+            $similarMidiData = [];
+            foreach($result as $key=>$value){
+                $metadata = Track::where('audio_path', $key)->first();
+                if ($metadata) {
+                    $similarMidiData[] = [
+                        'name' => $metadata->name,
+                        'artist' => $metadata->artist,
+                        'cover_path' => $metadata->cover_path,
+                        'audio_path' => $metadata->audio_path,
+                        'audio_type' => $metadata->audio_type,
+                        'score' => $value
+                    ];
+                }
+            }
+            if (file_exists($midiPath)) {
+                unlink($midiPath);
+            }
+            return response()->json(['similar_midi' => $similarMidiData]);
+        } catch (ProcessFailedException|\Exception $exception) {
+            if (file_exists($midiPath)) {
+                unlink($midiPath);
+            }
+            return response()->json(['error' => $exception->getMessage()]);
+        }
     }
     public function extractWavFeatures(String $path, String $type):Vector
     {

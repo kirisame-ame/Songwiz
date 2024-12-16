@@ -191,7 +191,6 @@ def process_single_midi(args,cache_dir):
         return midi_file, np.array(features_list)
 
     except Exception as e:
-        print(f"Error processing {midi_file}: {e}")
         return None, None
 
 #8 PROSES SEMUA MIDI DI CACHE
@@ -291,9 +290,8 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_d
         max_score = np.max(cosine_similarities)
         if np.isnan(max_score) or np.isinf(max_score):
             max_score = 0.0
-        similarity_scores[midi_file] = max_score
+        similarity_scores[midi_file] = str(max_score)
 
     # Sort results based on similarity scores
     ranked_results = dict(sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True))
-
     return ranked_results

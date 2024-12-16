@@ -1,9 +1,18 @@
-import React, { useState , useEffect, useRef} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MidiPlayer from '@/Components/MidiPlayer'
 import SearchIcon from '@/svg/SearchIcon'
+import axios from 'axios'
 
 interface TrackDataProps {
     setTrackData: (trackData: any[]) => void
+}
+interface TrackData {
+    name: string
+    artist: string
+    cover_path: string
+    audio_path: string
+    audio_type: string
+    score: number
 }
 const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [fileName, setFileName] = useState('')
@@ -11,9 +20,60 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [midiFile, setMidiFile] = useState<File | null>(null)
     const [recordedAudioUrl, setRecordedAudioUrl] = useState('')
     const [isRecording, setIsRecording] = useState(false)
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+        null
+    )
     const [countdown, setCountdown] = useState(10) // Waktu mundur (10 detik)
+    const [isUploading, setIsUploading] = useState(false)
+    const [isModalMinimized, setIsModalMinimized] = useState(false)
+    const [isUploadComplete, setIsUploadComplete] = useState(false)
 
+    const handleAudioQuery = async () => {
+        if (midiFile) {
+            setIsUploading(true)
+            const formData = new FormData()
+            formData.append('file', midiFile)
+            try {
+                const response = await axios.post('/midi-query', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                const data = response.data
+                console.log(data)
+                const trackData: TrackData[] = []
+                Object.keys(data).forEach((key) => {
+                    const trackArray = data[key] // Assuming this is an array of track objects
+                    console.log('Track Array:', trackArray)
+                    trackArray.forEach((track: any) => {
+                        console.log('Track:', track) // Log each track object
+                        trackData.push({
+                            name: track['name'],
+                            artist: track['artist'],
+                            cover_path: track['cover_path'],
+                            audio_path: track['audio_path'],
+                            audio_type: track['audio_type'],
+                            score: track['score'],
+                        })
+                    })
+                })
+                setTrackData(trackData)
+                setIsUploadComplete(true)
+                console.log('Upload complete')
+            } catch (err) {
+                console.error('Upload failed', err)
+            } finally {
+                setIsUploading(false)
+            }
+        }
+    }
+    const toggleModalMinimize = () => {
+        setIsModalMinimized(!isModalMinimized)
+    }
+
+    const closeModal = () => {
+        setIsUploading(false)
+        setIsModalMinimized(false)
+        setIsUploadComplete(false)
+    }
     // Handle file change (audio or midi)
     const handleFileChange = (event: any) => {
         const file = event.target.files[0]
@@ -48,7 +108,9 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     }
     // Handle Audio Recording
     const startRecording = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        })
         const recorder = new MediaRecorder(stream)
         const chunks: Blob[] = []
 
@@ -94,7 +156,7 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     }, [previewUrl, recordedAudioUrl])
     // Handle MIDI playback (play, stop, clear sequence)
 
-    return  (
+    return (
         <div className="flex w-full justify-around">
             {/* Left section for file upload */}
             <div className="flex flex-col p-4">
@@ -134,8 +196,13 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                 </button>
 
                 {/* Search button after file selection */}
-                <div className={`flex w-full items-center justify-center pt-2 ${previewUrl || midiFile ? '' : 'hidden'}`}>
-                    <button className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150">
+                <div
+                    className={`flex w-full items-center justify-center pt-2 ${previewUrl || midiFile ? '' : 'hidden'}`}
+                >
+                    <button
+                        onClick={handleAudioQuery}
+                        className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150"
+                    >
                         <SearchIcon />
                         <p>Search</p>
                     </button>
@@ -143,7 +210,7 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
             </div>
 
             {/* Right Section: Image */}
-            <div className="flex flex-col justify-center items-center text-center">
+            <div className="flex flex-col items-center justify-center text-center">
                 <h2>Record Audio</h2>
 
                 {/* Audio Recording Controls */}
@@ -155,7 +222,9 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                         Start Recording
                     </button>
                 ) : (
-                    <p className="text-red-500 text-xl mt-2">Recording...{countdown}s</p>
+                    <p className="mt-2 text-xl text-red-500">
+                        Recording...{countdown}s
+                    </p>
                 )}
 
                 {/* Display recorded audio player */}
@@ -164,8 +233,56 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                         <audio src={recordedAudioUrl} controls />
                     </div>
                 )}
-
             </div>
+            {(isUploading || isUploadComplete) && (
+                <div
+                    className={`fixed ${
+                        isModalMinimized
+                            ? 'bottom-4 right-4 h-12 w-48'
+                            : 'left-0 top-0 h-full w-full'
+                    } flex items-center justify-center bg-gray-700 bg-opacity-50 transition-all`}
+                >
+                    <div
+                        className={`rounded-lg bg-white p-6 shadow-lg ${
+                            isModalMinimized
+                                ? 'flex items-center justify-between'
+                                : 'flex flex-col'
+                        }`}
+                    >
+                        {isUploadComplete ? (
+                            <p>Finished Querying</p>
+                        ) : isModalMinimized ? (
+                            <p>Querying in background...</p>
+                        ) : (
+                            <p>Querying... Please wait</p>
+                        )}
+
+                        <div className="mt-4 flex items-center justify-center">
+                            {!isUploadComplete && !isModalMinimized && (
+                                <div
+                                    className="mr-3 h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
+                                    role="status"
+                                ></div>
+                            )}
+                            {isUploadComplete ? (
+                                <button
+                                    onClick={closeModal}
+                                    className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                >
+                                    OK
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={toggleModalMinimize}
+                                    className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                >
+                                    {isModalMinimized ? 'Restore' : 'Minimize'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
