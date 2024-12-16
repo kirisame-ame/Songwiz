@@ -138,7 +138,7 @@ def sliding_window(sequence, time_intervals, window_size, stride):
 
 
 # 7. Process a Single MIDI File (Helper for Parallel Processing)
-def process_single_midi(args):
+def process_single_midi(args,cache_dir="feature_cache"):
     """
     Process a single MIDI file and extract features, with caching.
     """
@@ -146,7 +146,7 @@ def process_single_midi(args):
     midi_file = os.path.basename(file_path)
 
     # Cek cache terlebih dahulu
-    cached_features = cache.load_features_from_cache(file_path)
+    cached_features = cache.load_features_from_cache(file_path,cache_dir)
     if cached_features is not None:
         return midi_file, cached_features
 
@@ -188,7 +188,7 @@ def process_single_midi(args):
             features_list.append(features)
 
         # Simpan ke cache
-        cache.save_features_to_cache(file_path, np.array(features_list))
+        cache.save_features_to_cache(file_path, np.array(features_list),cache_dir)
         return midi_file, np.array(features_list)
 
     except Exception as e:
@@ -196,7 +196,7 @@ def process_single_midi(args):
         return None, None
     
 #8 PROSES SEMUA MIDI DI CACHE
-def process_midi_database(midi_database_dir, window_size=20, stride=4):
+def process_midi_database(midi_database_dir, window_size=20, stride=4,cache_dir="feature_cache"):
     """
     Process all MIDI files in the database using sliding window for feature extraction.
     Menggunakan cache untuk mempercepat proses.
@@ -210,23 +210,23 @@ def process_midi_database(midi_database_dir, window_size=20, stride=4):
 
     # Proses setiap file MIDI
     for file_path in midi_files:
-        cached_features = cache.load_features_from_cache(file_path)
+        cached_features = cache.load_features_from_cache(file_path,cache_dir)
         if cached_features is not None:
             database_features[os.path.basename(file_path)] = cached_features
         else:
-            midi_file, features_list = process_single_midi((file_path, window_size, stride))
+            midi_file, features_list = process_single_midi((file_path, window_size, stride),cache_dir)
             if features_list is not None:
                 database_features[midi_file] = features_list
 
     return database_features
 
 # 9. Function for Melody Matching with Vectorized Similarity Calculation
-def rank_best_match(hummed_file, features_dict, window_size=20, stride=4):
+def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_dir="feature_cache"):
     """
     Match the humming file with the database using sliding window and cosine similarity.
     """
     # Cek cache untuk humming file
-    cached_features = cache.load_features_from_cache(hummed_file)
+    cached_features = cache.load_features_from_cache(hummed_file,cache_dir)
     if cached_features is not None:
         print(f"Cache ditemukan untuk {hummed_file}. Menggunakan cache...")
         hummed_features_array = cached_features
