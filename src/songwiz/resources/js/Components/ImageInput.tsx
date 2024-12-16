@@ -18,6 +18,9 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [file, setFile] = useState<File | null>(null)
     const [fileName, setFileName] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
+    const [isUploading, setIsUploading] = useState(false)
+    const [isModalMinimized, setIsModalMinimized] = useState(false)
+    const [isUploadComplete, setIsUploadComplete] = useState(false)
 
     // Handle file change
     const handleFileChange = (event: any) => {
@@ -41,6 +44,7 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     }
     const handleImageQuery = async () => {
         if (file) {
+            setIsUploading(true)
             const formData = new FormData()
             formData.append('file', file)
             try {
@@ -49,26 +53,39 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                 })
                 const data = response.data
                 const trackData: TrackData[] = []
-                let i: number = 0
                 Object.keys(data).forEach((key) => {
-                    const track = data[key]
-                    trackData.push({
-                        name: track[i]['name'],
-                        artist: track[i]['artist'],
-                        cover_path: track[i]['cover_path'],
-                        audio_path: track[i]['audio_path'],
-                        audio_type: track[i]['audio_type'],
-                        score: 0,
+                    const trackArray = data[key] // Assuming this is an array of track objects
+                    trackArray.forEach((track: any) => {
+                        console.log('Track:', track) // Log each track object
+                        trackData.push({
+                            name: track['name'],
+                            artist: track['artist'],
+                            cover_path: track['cover_path'],
+                            audio_path: track['audio_path'],
+                            audio_type: track['audio_type'],
+                            score: 0,
+                        })
                     })
-                    i += 1
                 })
                 console.log(trackData)
                 setTrackData(trackData)
+                setIsUploadComplete(true)
                 console.log('Upload complete')
             } catch (err) {
                 console.error('Upload failed', err)
+            } finally {
+                setIsUploading(false)
             }
         }
+    }
+    const toggleModalMinimize = () => {
+        setIsModalMinimized(!isModalMinimized)
+    }
+
+    const closeModal = () => {
+        setIsUploading(false)
+        setIsModalMinimized(false)
+        setIsUploadComplete(false)
     }
 
     return (
@@ -109,6 +126,57 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                     <SearchIcon />
                     <p>Search</p>
                 </button>
+                {(isUploading || isUploadComplete) && (
+                    <div
+                        className={`fixed ${
+                            isModalMinimized
+                                ? 'bottom-4 right-4 h-12 w-48'
+                                : 'left-0 top-0 h-full w-full'
+                        } flex items-center justify-center bg-gray-700 bg-opacity-50 transition-all`}
+                    >
+                        <div
+                            className={`rounded-lg bg-white p-6 shadow-lg ${
+                                isModalMinimized
+                                    ? 'flex items-center justify-between'
+                                    : 'flex flex-col'
+                            }`}
+                        >
+                            {isUploadComplete ? (
+                                <p>Finished Querying</p>
+                            ) : isModalMinimized ? (
+                                <p>Querying in background...</p>
+                            ) : (
+                                <p>Querying... Please wait</p>
+                            )}
+
+                            <div className="mt-4 flex items-center justify-center">
+                                {!isUploadComplete && !isModalMinimized && (
+                                    <div
+                                        className="mr-3 h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent"
+                                        role="status"
+                                    ></div>
+                                )}
+                                {isUploadComplete ? (
+                                    <button
+                                        onClick={closeModal}
+                                        className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                    >
+                                        OK
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={toggleModalMinimize}
+                                        className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                                    >
+                                        {isModalMinimized
+                                            ? 'Restore'
+                                            : 'Minimize'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

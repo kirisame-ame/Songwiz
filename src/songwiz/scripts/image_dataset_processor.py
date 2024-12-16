@@ -11,7 +11,7 @@ def load_images_from_directory(image_database_dir, target_size=(64, 64)):
     images = []
     filenames = []
     for file in os.listdir(image_database_dir):
-        if file.endswith(('.png', '.jpg', '.jpeg')):
+        if file.endswith(('.png', '.jpg', '.jpeg','.webp')):
             img_path = os.path.join(image_database_dir, file)
             img = Image.open(img_path).convert('L')  # Convert to grayscale
             img_resized = img.resize(target_size)   # Resize to target size

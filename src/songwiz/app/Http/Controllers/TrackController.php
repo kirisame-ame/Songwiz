@@ -97,11 +97,24 @@ class TrackController extends Controller
         $data = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
         $records = [];
         foreach($data as $track){
-            if (!str_contains($track['audio_path'], '-')) {
-                [$artist, $name] = ['Unknown', $track['audio_path']];
-            }else{
+            if (str_contains($track['audio_path'], '-')) {
                 [$artist, $name] = explode('-', $track['audio_path'], 2);
+            }else if (str_contains($track['audio_path'], '/')) {
+                [$artist, $name] = explode('/', $track['audio_path'], 2);
+            }else if (str_contains($track['audio_path'], '⧸')) {
+                [$artist, $name] = explode('⧸', $track['audio_path'], 2);
             }
+            else if (str_contains($track['audio_path'], '「')) {
+                $cleaned = str_replace('」', '', $track['audio_path']);
+                [$artist, $name] = explode('「', $cleaned, 2);
+            }else if (str_contains($track['audio_path'], '『')) {
+                $cleaned = str_replace('』', '', $track['audio_path']);
+                [$artist, $name] = explode('『', $cleaned, 2);
+            }else{
+                $artist = 'Unknown';
+                $name = $track['audio_path'];
+            }
+            dump($track['cover_path']);
             $records[] = [
                 'name'=>$name,
                 'cover_path'=>$track['cover_path'],
