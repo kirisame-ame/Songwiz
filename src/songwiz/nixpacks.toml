@@ -138,6 +138,8 @@ http {
         add_header X-Content-Type-Options "nosniff";
 
         client_max_body_size 1G;
+        fastcgi_read_timeout 1000s;  # Increase the FastCGI read timeout
+        proxy_read_timeout 1000s;    # Increase the proxy timeout if you're using a reverse proxy
 
         index index.php;
 
@@ -168,7 +170,7 @@ http {
             include $!{nginx}/conf/fastcgi_params;
             include $!{nginx}/conf/fastcgi.conf;
 
-            fastcgi_param PHP_VALUE "upload_max_filesize=1G \n post_max_size=1G";
+            fastcgi_param PHP_VALUE "upload_max_filesize=1G \n post_max_size=1G \n max_execution_time=1000";
         }
 
         location ~ /\.(?!well-known).* {
