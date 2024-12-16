@@ -1,6 +1,0 @@
-[phases.build]
-# Customize the PHP configuration
-cmds = ['...',
-    "echo \"<<<<<<<<<<<<< CHANGING THE PHP INI >>>>>>>>>>>>>>\"" ,
-    "PHP_INI_PATH=$(php -i | grep '/php.ini' | awk '{print $6}') && echo -e '\nUPLOAD_MAX_FILESIZE = 1G\nPOST_MAX_SIZE = 1G' >> $PHP_INI_PATH",
-]
