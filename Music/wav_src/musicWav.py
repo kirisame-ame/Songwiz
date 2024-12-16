@@ -88,11 +88,11 @@ def dtw_distance(reference_features, target_features):
         print(f"Error calculating DTW distance: {e}")
         return float('inf')
 
-def process_file(args,cache_dir):
+def process_file(args):
     """
     Proses file tunggal menggunakan multiprocessing.
     """
-    reference_features, file_path = args
+    (reference_features, file_path), cache_dir = args
     target_features = extract_features(file_path,cache_dir)
     if target_features is not None:
         distance = dtw_distance(reference_features, target_features)
@@ -115,7 +115,7 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
     ]
     
     pool = Pool(cpu_count())
-    results = pool.map(process_file, [(reference_features, file, cache_dir) for file in audio_files])
+    results = pool.map(process_file, [((reference_features, file), cache_dir) for file in audio_files])
     pool.close()
     pool.join()
     
