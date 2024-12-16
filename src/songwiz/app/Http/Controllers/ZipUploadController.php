@@ -33,8 +33,7 @@ class ZipUploadController extends Controller
                             'jpg', 'png', 'webp' => $destinationPath . '/img/',
                             default => $destinationPath . '/others/',
                         };
-                        dump($cleanFileName);
-                        // Extract the file to the target directory
+                         // Extract the file to the target directory
                         copy('zip://' . $zipFile->getRealPath() . '#' . $fileName, $targetDir . $cleanFileName);
 
                     }
