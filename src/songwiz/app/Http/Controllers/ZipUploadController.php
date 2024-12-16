@@ -14,7 +14,6 @@ class ZipUploadController extends Controller
             $zipFile = $request->file('file');
 
             $destinationPath = public_path('temp');
-            $zipFile->move($destinationPath, $zipFile->getClientOriginalName());
 
             $zip = new ZipArchive;
 
