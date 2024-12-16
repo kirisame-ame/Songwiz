@@ -10,13 +10,14 @@ if __name__ == "__main__":
     # File referensi dan direktori audio
     reference_file = "../wav_test/IndoTest.mp3"
     audio_dir = "../wav_database"
+    cache_dir = "feature_cache"
     
     # Proses caching fitur
-    musicWav.cache_audio_features(audio_dir)
+    musicWav.cache_audio_features(audio_dir, cache_dir)
     
     start_time = time.time()
     # Proses ranking
-    ranked_files = musicWav.rank_audio_files_dtw(reference_file, audio_dir)
+    ranked_files = musicWav.rank_audio_files_dtw(reference_file, audio_dir, cache_dir)
     # Hitung waktu selesai
     end_time = time.time()
     elapsed_time = end_time - start_time

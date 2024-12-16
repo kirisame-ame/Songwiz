@@ -10,32 +10,32 @@ FEATURE_CACHE_DIR = "feature_cache"
 # Pastikan folder cache ada
 os.makedirs(FEATURE_CACHE_DIR, exist_ok=True)
 
-def get_feature_cache_path(file_path):
+def get_feature_cache_path(file_path,cache_dir):
     """Generate path file cache berdasarkan nama file audio tanpa hash."""
     file_name = os.path.basename(file_path)  # Ambil nama file tanpa path
     file_name_no_ext = os.path.splitext(file_name)[0]  # Hapus ekstensi
-    return os.path.join(FEATURE_CACHE_DIR, f"{file_name_no_ext}.pkl")
+    return os.path.join(cache_dir, f"{file_name_no_ext}.pkl")
 
-def load_features_from_cache(file_path):
+def load_features_from_cache(file_path,cache_dir):
     """Load fitur dari cache jika tersedia."""
-    cache_path = get_feature_cache_path(file_path)
+    cache_path = get_feature_cache_path(file_path,cache_dir)
     if os.path.exists(cache_path):
         with open(cache_path, "rb") as f:
             return pickle.load(f)
     return None
 
-def save_features_to_cache(file_path, features):
+def save_features_to_cache(file_path, features,cache_dir):
     """Simpan fitur ke file cache."""
-    cache_path = get_feature_cache_path(file_path)
+    cache_path = get_feature_cache_path(file_path,cache_dir)
     with open(cache_path, "wb") as f:
         pickle.dump(features, f)
 
-def extract_features(file_path):
+def extract_features(file_path,cache_dir):
     """
     Ekstraksi Chroma Features yang ditingkatkan dengan HPSS, menggunakan cache.
     """
     # Cek apakah fitur sudah ada di cache
-    cached_features = load_features_from_cache(file_path)
+    cached_features = load_features_from_cache(file_path,cache_dir)
     if cached_features is not None:
         return cached_features
     
@@ -49,13 +49,13 @@ def extract_features(file_path):
         features = np.concatenate((chroma_mean, chroma_std))
         
         # Simpan fitur ke cache
-        save_features_to_cache(file_path, features)
+        save_features_to_cache(file_path, features,cache_dir)
         return features
     except Exception as e:
         print(f"Error extracting features from {file_path}: {e}")
         return None
 
-def cache_audio_features(audio_dir):
+def cache_audio_features(audio_dir,cache_dir):
     """
     Proses caching fitur untuk semua file di direktori audio.
     """
@@ -67,11 +67,11 @@ def cache_audio_features(audio_dir):
     
     print(f"Caching fitur untuk {len(audio_files)} file audio...")
     for file in audio_files:
-        cache_path = get_feature_cache_path(file)
+        cache_path = get_feature_cache_path(file,cache_dir)
         if os.path.exists(cache_path):
             print(f"Cache sudah ada untuk {file}. Melewati...")
             continue
-        extract_features(file)
+        extract_features(file,cache_dir)
     print("Proses caching selesai.")
 
 
@@ -88,22 +88,22 @@ def dtw_distance(reference_features, target_features):
         print(f"Error calculating DTW distance: {e}")
         return float('inf')
 
-def process_file(args):
+def process_file(args,cache_dir):
     """
     Proses file tunggal menggunakan multiprocessing.
     """
     reference_features, file_path = args
-    target_features = extract_features(file_path)
+    target_features = extract_features(file_path,cache_dir)
     if target_features is not None:
         distance = dtw_distance(reference_features, target_features)
         return (os.path.basename(file_path), distance)
     return None
 
-def rank_audio_files_dtw(reference_file, audio_dir):
+def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
     """
     Mengurutkan file audio berdasarkan jarak DTW.
     """
-    reference_features = extract_features(reference_file)
+    reference_features = extract_features(reference_file,cache_dir)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
         return []
@@ -115,7 +115,7 @@ def rank_audio_files_dtw(reference_file, audio_dir):
     ]
     
     pool = Pool(cpu_count())
-    results = pool.map(process_file, [(reference_features, file) for file in audio_files])
+    results = pool.map(process_file, [(reference_features, file, cache_dir) for file in audio_files])
     pool.close()
     pool.join()
     
