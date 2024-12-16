@@ -46,7 +46,7 @@ def extract_features(file_path,cache_dir):
         save_features_to_cache(file_path, features,cache_dir)
         return features
     except Exception as e:
-        print(f"Error extracting features from {file_path}: {e}")
+        print(f"{e}")
         return None
 
 def cache_audio_features(audio_dir,cache_dir):
@@ -59,8 +59,8 @@ def cache_audio_features(audio_dir,cache_dir):
         if f.lower().endswith(('.wav', '.mp3'))
     ]
 
-    print(f"Caching fitur untuk {len(audio_files)} file audio...")
     for file in audio_files:
+
         cache_path = get_feature_cache_path(file,cache_dir)
         if os.path.exists(cache_path):
             print(f"Cache sudah ada untuk {file}. Melewati...")

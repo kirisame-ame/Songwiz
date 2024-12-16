@@ -21,5 +21,3 @@ if __name__ == "__main__":
     # # Step 1: Cache semua file MIDI di database
     # print("=== Langkah 1: Caching Semua File MIDI ===")
     cache.cache_all_features(midi_database_dir, window_size, stride ,cache_dir)
-
-
