@@ -25,6 +25,14 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
         .register('/service-worker.js')
         .then((registration) => {
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute('content')
+            if (csrfToken) {
+                if (registration.active) {
+                    registration.active.postMessage({ csrfToken })
+                }
+            }
             console.log('Service Worker registered:', registration)
         })
 }

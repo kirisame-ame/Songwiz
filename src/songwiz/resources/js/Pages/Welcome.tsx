@@ -3,7 +3,15 @@ import { Head, Link } from '@inertiajs/react'
 import ImageInput from '@/Components/ImageInput'
 import { useState } from 'react'
 import AudioInput from '@/Components/AudioInput'
-
+import QueryResultCard from '@/Components/QueryResultCard'
+interface TrackData {
+    name: string
+    artist: string
+    cover_path: string
+    audio_path: string
+    audio_type: string
+    score: number
+}
 export default function Welcome({
     auth,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
@@ -17,6 +25,7 @@ export default function Welcome({
     }
 
     const [activeButton, setActiveButton] = useState(null)
+    const [similarTracks, setSimilarTracks] = useState<TrackData[]>([])
 
     const handleClick = (buttonId: any) => {
         setActiveButton(buttonId)
@@ -59,6 +68,13 @@ export default function Welcome({
                                         </Link>
                                     </>
                                 )}
+
+                                <Link
+                                    href={route('database')}
+                                    className="rounded-md px-10 py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                >
+                                    Database
+                                </Link>
                             </nav>
                         </header>
 
@@ -97,9 +113,13 @@ export default function Welcome({
                                     </div>
                                     <div className="flex min-h-40 w-full items-center justify-center rounded-b-lg bg-gray-50/50 py-3 text-center">
                                         {activeButton === 1 ? (
-                                            <AudioInput />
+                                            <AudioInput
+                                                setTrackData={setSimilarTracks}
+                                            />
                                         ) : activeButton === 2 ? (
-                                            <ImageInput />
+                                            <ImageInput
+                                                setTrackData={setSimilarTracks}
+                                            />
                                         ) : (
                                             <p className="text-center text-3xl">
                                                 Find a{' '}
@@ -118,6 +138,9 @@ export default function Welcome({
                                             </p>
                                         )}
                                     </div>
+                                    <QueryResultCard
+                                        trackData={similarTracks}
+                                    />
                                 </div>
                             </div>
                         </main>

@@ -21,4 +21,4 @@ def play_midi_file(file_path):
         pygame.quit()
 
 # Example usage
-play_midi_file("midi_database/Merry-Go-Round of Life.mid")
+play_midi_file("../midi_testing/Its_Too_Late.2.mid")

@@ -1,3 +1,13 @@
+let csrfToken = null // Variable to store the token
+
+// Listen for messages from the main thread
+self.addEventListener('message', (event) => {
+    if (event.data.csrfToken) {
+        csrfToken = event.data.csrfToken
+        console.log('CSRF token received in Service Worker:', csrfToken)
+    }
+})
+
 self.addEventListener('install', (event) => {
     console.log('Service Worker installed')
 })
@@ -17,9 +27,21 @@ async function handleFileUpload(request) {
 
         const file = formData.get('file')
         if (file) {
+            if (!csrfToken) {
+                return new Response(
+                    JSON.stringify({ error: 'No CSRF token found' }),
+                    {
+                        status: 400,
+                    }
+                )
+            }
+            formData.append('_token', csrfToken)
             return await fetch(request.url, {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                },
             })
         }
 

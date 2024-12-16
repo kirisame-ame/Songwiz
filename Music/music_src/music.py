@@ -1,7 +1,11 @@
 import numpy as np
 from mido import MidiFile
+import pickle
 import os
+import cache
 from multiprocessing import Pool, cpu_count
+from numba import njit
+
 
 # 1. Function to read melody from MIDI file with onset times
 def extract_melody_from_midi(file_path, channel=0):
@@ -24,6 +28,7 @@ def extract_melody_from_midi(file_path, channel=0):
                     onset_times.append(onset_time)
     return melody, onset_times
 
+@njit()
 # 2. Normalize Pitch (relative to the first note for transposition invariance)
 def normalize_pitch(pitch_sequence):
     """
@@ -56,47 +61,54 @@ def normalize_time_intervals(onset_times):
     return normalized_time_intervals
 
 # 4. Feature Extraction (ATB, RTB, FTB, and rhythm features)
+# 4. Feature Extraction (Optimized)
 def extract_features(pitch_sequence, time_intervals):
     """
     Extract ATB, RTB, FTB features from the normalized pitch sequence and rhythm features.
     """
     if not pitch_sequence:  # Handle empty input
-        return np.zeros(128 + 255 + 255 + 25)  # Include rhythm features
+        return np.zeros(128 + 255 + 255 + 25, dtype=np.float32)  # Include rhythm features
 
     # Convert sequences to NumPy arrays for vectorization
-    pitch_sequence = np.array(pitch_sequence)
-    time_intervals = np.array(time_intervals)
+    pitch_sequence = np.array(pitch_sequence, dtype=np.int32)
+    time_intervals = np.array(time_intervals, dtype=np.float32)
 
     # ATB (Absolute Tone Based)
-    atb_histogram = np.zeros(128)
-    indices = pitch_sequence + 64  # Shift pitch range to positive indices
-    valid_indices = (indices >= 0) & (indices < 128)
-    indices = indices[valid_indices].astype(int)
-    np.add.at(atb_histogram, indices, 1)
+    atb_histogram, _ = np.histogram(pitch_sequence, bins=128, range=(-64, 64))
     atb_total = atb_histogram.sum()
-    atb_histogram_normalized = atb_histogram / atb_total if atb_total else atb_histogram
+    if atb_total > 0:
+        atb_histogram_normalized = atb_histogram / atb_total
+    else:
+        atb_histogram_normalized = atb_histogram
 
     # RTB (Relative Tone Based)
-    rtb_histogram = np.zeros(255)
-    diffs = np.diff(pitch_sequence) + 127  # Shift to positive indices
-    valid_diffs = (diffs >= 0) & (diffs < 255)
-    diffs = diffs[valid_diffs].astype(int)
-    np.add.at(rtb_histogram, diffs, 1)
+    rtb_diffs = np.diff(pitch_sequence)
+    rtb_histogram, _ = np.histogram(rtb_diffs, bins=255, range=(-127, 127))
     rtb_total = rtb_histogram.sum()
-    rtb_histogram_normalized = rtb_histogram / rtb_total if rtb_total else rtb_histogram
+    if rtb_total > 0:
+        rtb_histogram_normalized = rtb_histogram / rtb_total
+    else:
+        rtb_histogram_normalized = rtb_histogram
 
     # FTB (First Tone Based)
-    ftb_histogram = np.zeros(255)
-    diffs = pitch_sequence - pitch_sequence[0] + 127  # Shift to positive indices
-    valid_diffs = (diffs >= 0) & (diffs < 255)
-    diffs = diffs[valid_diffs].astype(int)
-    np.add.at(ftb_histogram, diffs, 1)
+    ftb_diffs = pitch_sequence - pitch_sequence[0]
+    ftb_histogram, _ = np.histogram(ftb_diffs, bins=255, range=(-127, 127))
     ftb_total = ftb_histogram.sum()
-    ftb_histogram_normalized = ftb_histogram / ftb_total if ftb_total else ftb_histogram
+    if ftb_total > 0:
+        ftb_histogram_normalized = ftb_histogram / ftb_total
+    else:
+        ftb_histogram_normalized = ftb_histogram
 
-    # Combine all features into a single NumPy array
-    return np.concatenate([atb_histogram_normalized, rtb_histogram_normalized,ftb_histogram_normalized])
+    # Combine all features into a single NumPy array with appropriate weights
+    combined_features = np.concatenate([
+        0.7*atb_histogram_normalized.astype(np.float32),
+        rtb_histogram_normalized.astype(np.float32),
+        5.0*ftb_histogram_normalized.astype(np.float32)
+    ])
+    return combined_features
 
+@njit(parallel=True)
+#return np.concatenate([atb_histogram_normalized,rtb_histogram_normalized,ftb_histogram_normalized])
 # 5. Cosine Similarity Calculation
 def calculate_cosine_similarity(vector1, vector2):
     """
@@ -112,7 +124,6 @@ def calculate_cosine_similarity(vector1, vector2):
     dot_product = np.dot(vector1, vector2)
     return dot_product / (norm1 * norm2)
 
-
 # 6. Sliding Window Based on Number of Notes
 def sliding_window(sequence, time_intervals, window_size, stride):
     """
@@ -125,14 +136,22 @@ def sliding_window(sequence, time_intervals, window_size, stride):
         windows.append((window_sequence, window_time_intervals))
     return windows
 
+
 # 7. Process a Single MIDI File (Helper for Parallel Processing)
 def process_single_midi(args):
     """
-    Process a single MIDI file and extract features.
+    Process a single MIDI file and extract features, with caching.
     """
     file_path, window_size, stride = args
     midi_file = os.path.basename(file_path)
+
+    # Cek cache terlebih dahulu
+    cached_features = cache.load_features_from_cache(file_path)
+    if cached_features is not None:
+        return midi_file, cached_features
+
     try:
+        # Ekstrak fitur jika tidak ada di cache
         pitches, onset_times = extract_melody_from_midi(file_path)
 
         if not pitches or not onset_times:
@@ -148,10 +167,8 @@ def process_single_midi(args):
 
         onset_times_beats = [t / ticks_per_beat for t in onset_times]
 
-        # Normalize pitch
+        # Normalize pitch and time intervals
         normalized_pitches = normalize_pitch(pitches)
-
-        # Normalize time intervals
         normalized_time_intervals = normalize_time_intervals(onset_times_beats)
 
         if not normalized_time_intervals:
@@ -170,26 +187,59 @@ def process_single_midi(args):
             features = extract_features(window_sequence, window_time_intervals)
             features_list.append(features)
 
+        # Simpan ke cache
+        cache.save_features_to_cache(file_path, np.array(features_list))
         return midi_file, np.array(features_list)
 
     except Exception as e:
         print(f"Error processing {midi_file}: {e}")
         return None, None
+    
+#8 PROSES SEMUA MIDI DI CACHE
+def process_midi_database(midi_database_dir, window_size=20, stride=4):
+    """
+    Process all MIDI files in the database using sliding window for feature extraction.
+    Menggunakan cache untuk mempercepat proses.
+    """
+    database_features = {}
+    midi_files = [
+        os.path.join(midi_database_dir, f)
+        for f in os.listdir(midi_database_dir)
+        if f.endswith(('.mid', '.midi'))
+    ]
+
+    # Proses setiap file MIDI
+    for file_path in midi_files:
+        cached_features = cache.load_features_from_cache(file_path)
+        if cached_features is not None:
+            database_features[os.path.basename(file_path)] = cached_features
+        else:
+            midi_file, features_list = process_single_midi((file_path, window_size, stride))
+            if features_list is not None:
+                database_features[midi_file] = features_list
+
+    return database_features
 
 # 9. Function for Melody Matching with Vectorized Similarity Calculation
 def rank_best_match(hummed_file, features_dict, window_size=20, stride=4):
     """
     Match the humming file with the database using sliding window and cosine similarity.
     """
-    try:
-        pitches, onset_times = extract_melody_from_midi(hummed_file)
-    except Exception as e:
-        print(f"Error reading humming file: {e}")
-        return {}
+    # Cek cache untuk humming file
+    cached_features = cache.load_features_from_cache(hummed_file)
+    if cached_features is not None:
+        print(f"Cache ditemukan untuk {hummed_file}. Menggunakan cache...")
+        hummed_features_array = cached_features
+    else:
+        try:
+            pitches, onset_times = extract_melody_from_midi(hummed_file)
+        except Exception as e:
+            print(f"Error reading humming file: {e}")
+            return {}
 
-    if not pitches or not onset_times:
-        print("Humming file contains no melody.")
-        return {}
+        if not pitches or not onset_times:
+            print("Humming file contains no melody.")
+            return {}
 
     # Convert onset_times from ticks to beats
     midi = MidiFile(hummed_file)
@@ -243,7 +293,6 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4):
         if np.isnan(max_score) or np.isinf(max_score):
             max_score = 0.0
         similarity_scores[midi_file] = max_score
-        print(f"{midi_file}: Max Similarity Score = {max_score:.4f}")
 
     # Sort results based on similarity scores
     ranked_results = dict(sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True))

@@ -2,7 +2,10 @@ import React, { useState } from 'react'
 import MidiPlayer from '@/Components/MidiPlayer'
 import SearchIcon from '@/svg/SearchIcon'
 
-function CustomFileInput() {
+interface TrackDataProps {
+    setTrackData: (trackData: any[]) => void
+}
+const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     const [fileName, setFileName] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
     const [midiFile, setMidiFile] = useState<File | null>(null)

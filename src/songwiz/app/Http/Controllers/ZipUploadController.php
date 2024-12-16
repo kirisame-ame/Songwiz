@@ -13,7 +13,8 @@ class ZipUploadController extends Controller
         if ($request->hasFile('file')) {
             $zipFile = $request->file('file');
 
-            $destinationPath = public_path('uploads');
+            $destinationPath = public_path('temp');
+            $zipFile->move($destinationPath, $zipFile->getClientOriginalName());
 
             $zip = new ZipArchive;
 
@@ -32,6 +33,7 @@ class ZipUploadController extends Controller
                             'jpg', 'png', 'webp' => $destinationPath . '/img/',
                             default => $destinationPath . '/others/',
                         };
+                        dump($cleanFileName);
                         // Extract the file to the target directory
                         copy('zip://' . $zipFile->getRealPath() . '#' . $fileName, $targetDir . $cleanFileName);
 
