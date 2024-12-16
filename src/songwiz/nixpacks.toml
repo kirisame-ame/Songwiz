@@ -137,7 +137,7 @@ http {
 
         add_header X-Content-Type-Options "nosniff";
 
-        client_max_body_size 35M;
+        client_max_body_size 1G;
 
         index index.php;
 
