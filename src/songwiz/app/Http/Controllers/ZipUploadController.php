@@ -13,7 +13,7 @@ class ZipUploadController extends Controller
         if ($request->hasFile('file')) {
             $zipFile = $request->file('file');
 
-            $destinationPath = public_path('temp');
+            $destinationPath = public_path('uploads');
 
             $zip = new ZipArchive;
 
