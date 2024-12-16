@@ -11,6 +11,7 @@ Selain itu Proyek ini juga dapat mencari suatu album musik berdasarkan image mas
 - Mengekstraksi Fitur dari File MIDI: Program ini membaca file MIDI, memproses data, dan mengekstrak fitur-fitur seperti Absolute Tone-Based (ATB), Relative Tone-Based (RTB), dan First Tone-Based (FTB) histogram.
 - Cosine Similarity: Program ini menghitung cosine similarity antara fitur dari file MIDI query dan file MIDI dalam database.
 - Pemrosesan Secara Konkuren: Proyek ini mendukung pemrosesan secara konkuren untuk mempercepat komputasi menggunakan concurrent.futures.ProcessPoolExecutor milik Python.
+- Dynamic Time Wrapping : digunakan untuk mencari jarak terdekat pada file WAV/MP3
 - PCA : digunakan untuk menyederhanakan hasil ekstrak fitur dari image.
 
 ## Instalasi
