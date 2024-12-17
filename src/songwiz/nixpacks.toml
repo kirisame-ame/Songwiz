@@ -10,8 +10,7 @@ cmds = [
     "pip install pillow",
     "chmod -R 775 /app",
     "chown -R www-data:www-data /app",
-    "export PATH=$PATH:/usr/local/bin:$",
-    "export PATH=$PATH:/usr/local/lib/python3.10:$",
+    "export PATH=$PATH:/usr/local/bin",
     "..."
 ]
 nixPkgs = ["...", "python311Packages.supervisor"]
