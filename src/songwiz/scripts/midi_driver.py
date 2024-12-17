@@ -17,8 +17,6 @@ if __name__ == "__main__":
 
     window_size = 40
     stride = 8
-    print(sys.version)
-    print(sys.path)
 
     # # Step 1: Cache semua file MIDI di database
     # print("=== Langkah 1: Caching Semua File MIDI ===")
