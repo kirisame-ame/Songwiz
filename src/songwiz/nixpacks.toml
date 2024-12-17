@@ -4,6 +4,7 @@ cmds = [
     "apt-get update",
     "apt-get install -y python3.11",
     "apt-get install -y python3.11-venv",
+    "apt-get install -y python3-pip",
     "python3.11 -m venv /venv",
     "source /venv/bin/activate",
     "pip install --upgrade pip",
