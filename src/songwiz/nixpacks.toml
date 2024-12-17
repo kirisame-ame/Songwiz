@@ -3,7 +3,6 @@ providers = ["...","apt-get", "pip","python3.11"]
 cmds = [
     "apt-get update",
     "apt-get install -y python3.11",
-    "apt-get install -y python3.11-venv",
     "python3.11 -m venv /venv",
     "source /app/venv/bin/activate",
     "pip install --upgrade pip",
