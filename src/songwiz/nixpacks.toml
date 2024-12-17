@@ -1,18 +1,11 @@
 [phases.setup]
-providers = ["...","apt-get", "pip","python3.11"]
+providers = ["...","apt-get", "pip"]
 cmds = [
-    "pip install numpy",
-    "pip install mido",
-    "pip install scipy",
-    "pip install librosa",
-    "pip install pillow",
-    "export PYTHONPATH=$(python3.11 -c 'import site; print(site.getsitepackages()[0])'):$PYTHONPATH",
-    "python3.11 -c 'import numpy; import librosa; print(\"All libraries installed successfully\")'",
-    "chmod -R 775 /public",
-    "chown -R www-data:www-data /public",
+    "chmod -R 775 /app",
+    "chown -R www-data:www-data /app",
     "..."
 ]
-nixPkgs = ["..."]
+nixPkgs = ["...", "python311Packages.supervisor","python311Packages.numpy","python311Packages.mido","python311Packages.scipy","python311Packages.librosa","python311Packages.pillow"]
 
 [phases.build]
 cmds = [
