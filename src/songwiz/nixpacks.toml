@@ -1,8 +1,6 @@
 [phases.setup]
 providers = ["...","apt-get", "pip","python3.11"]
 cmds = [
-    "apt-get update",
-    "apt-get install python3.11 python3.11-dev python3.11-distutils python3.11-venv python3.11-pip -y",
     "pip install numpy",
     "pip install mido",
     "pip install scipy",
