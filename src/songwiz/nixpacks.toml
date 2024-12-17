@@ -4,9 +4,9 @@ cmds = [
     "apt-get update",
     "apt-get install -y python3 python3-pip",
     "pip install numpy",
-    "pip install time",
     "pip install mido",
-    "pip install pickle",
+    "pip install scipy",
+    "pip install librosa"
     "..."
 ]
 nixPkgs = ["...", "python311Packages.supervisor"]
@@ -188,15 +188,5 @@ http {
         }
     }
 }
-'''
-
-[custom]
-install = '''
-apt-get update
-apt-get install -y python3 python3-pip
-pip install numpy
-pip install time
-pip install mido
-pip install pickle
 '''
 
