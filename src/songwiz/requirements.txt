@@ -1,4 +1,6 @@
 mido==1.2.10
 numpy==1.23.5
 scipy==1.10.0
+concurrent.futures  # This is part of the standard library, so no need to install separately
+tqdm==4.65.0
 librosa==0.10.0
