@@ -13,8 +13,6 @@ cmds = [
     "pip install scipy",
     "pip install librosa",
     "pip install pillow",
-    "chmod -R 775 /public",
-    "chown -R www-data:www-data /public",
     "..."
 ]
 nixPkgs = ["..."]
