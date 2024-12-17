@@ -1,20 +1,11 @@
 [phases.setup]
 providers = ["...","apt-get", "pip"]
 cmds = [
-    "apt-get update",
-    "apt-get install -y python3 python3-pip",
-    "pip install numpy",
-    "pip install mido",
-    "pip install scipy",
-    "pip install librosa",
-    "pip install pillow",
     "chmod -R 775 /app",
     "chown -R www-data:www-data /app",
-    "export PATH=$PATH:/usr/local/bin:$",
-    "export PATH=$PATH:/usr/local/lib/python3.10:$",
     "..."
 ]
-nixPkgs = ["...", "python311Packages.supervisor"]
+nixPkgs = ["...", "python311Packages.supervisor","python311Packages.numpy","python311Packages.mido","python311Packages.scipy","python311Packages.librosa","python311Packages.pillow"]
 
 [phases.build]
 cmds = [
