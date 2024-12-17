@@ -1,4 +1,14 @@
 [phases.setup]
+providers = ["...","apt-get", "pip"]
+cmds = [
+    "apt-get update",
+    "apt-get install -y python3 python3-pip",
+    "pip install numpy",
+    "pip install time",
+    "pip install mido",
+    "pip install pickle",
+    "..."
+]
 nixPkgs = ["...", "python311Packages.supervisor"]
 
 [phases.build]
