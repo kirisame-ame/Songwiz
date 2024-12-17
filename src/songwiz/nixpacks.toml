@@ -2,7 +2,7 @@
 providers = ["...","apt-get", "pip","python3.11"]
 cmds = [
     "apt-get update",
-    "apt-get install -y python3.11 python3.11-pip"
+    "apt-get install -y python3.11 python3.11-pip",
     "pip install numpy",
     "pip install mido",
     "pip install scipy",
