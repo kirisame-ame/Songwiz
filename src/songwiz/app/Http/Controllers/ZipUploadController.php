@@ -68,9 +68,7 @@ class ZipUploadController extends Controller
         $process2 = new Process(['python3', $audioScript, $audio_dir, $audioCacheDir]);
         try{
             $process->mustRun();
-            $process2->mustRun();
-            dump($process2->getOutput());
-            dump($process2->getErrorOutput());
+            dump($process->getOutput());
             return response()->json(['message' => 'files cached successfully'], 200);
         } catch (ProcessFailedException $exception) {
             return response()->json(['message' => 'Failed to cache MIDI files', 'error' => $exception->getMessage()], 500);

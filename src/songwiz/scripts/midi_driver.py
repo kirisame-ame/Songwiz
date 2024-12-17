@@ -1,6 +1,6 @@
 import midi_music as music
 import midi_cache as cache
-import numpy as np
+# import numpy as np
 import sys
 import json
 
@@ -20,4 +20,5 @@ if __name__ == "__main__":
 
     # # Step 1: Cache semua file MIDI di database
     # print("=== Langkah 1: Caching Semua File MIDI ===")
-    cache.cache_all_features(midi_database_dir, window_size, stride ,cache_dir)
+#     cache.cache_all_features(midi_database_dir, window_size, stride ,cache_dir)
+    help('modules')
