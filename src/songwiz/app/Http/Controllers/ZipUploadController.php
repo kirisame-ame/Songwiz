@@ -58,14 +58,13 @@ class ZipUploadController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
     public function cache(Request $request){
-        $pypath = '/venv/bin/python';
         $midi_dir = public_path('uploads/midi');
         $cache_dir = public_path('midi_cache');
         $scriptPath = base_path('scripts/midi_driver.py');
         $audio_dir = public_path('uploads/audio');
         $audioScript = base_path('scripts/audio_cache.py');
         $audioCacheDir = public_path('audio_cache');
-        $process = new Process([$pypath, $scriptPath, $midi_dir, $cache_dir]);
+        $process = new Process(['python3', $scriptPath, $midi_dir, $cache_dir]);
         $process2 = new Process(['python3', $audioScript, $audio_dir, $audioCacheDir]);
         try{
             $process->mustRun();
