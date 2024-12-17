@@ -70,6 +70,7 @@ class ZipUploadController extends Controller
             $process->mustRun();
             $process2->mustRun();
             dump($process2->getOutput());
+            dump($process2->getErrorOutput());
             return response()->json(['message' => 'files cached successfully'], 200);
         } catch (ProcessFailedException $exception) {
             return response()->json(['message' => 'Failed to cache MIDI files', 'error' => $exception->getMessage()], 500);
