@@ -6,9 +6,7 @@ cmds = [
     "pip install numpy",
     "pip install mido",
     "pip install scipy",
-    "pip install librosa",
-    "chmod -R 775 /app",
-    "chown -R www-data:www-data /app",
+    "pip install librosa"
     "..."
 ]
 nixPkgs = ["...", "python311Packages.supervisor"]
