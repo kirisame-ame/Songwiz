@@ -3,14 +3,14 @@ providers = ["...","apt-get", "pip","python3.11"]
 cmds = [
     "apt-get update",
     "apt-get install -y python3.11",
-    "apt-get install -y python3-pip",
+    "python3.11 -m venv /venv",
+    "source /app/venv/bin/activate",
+    "pip install --upgrade pip",
     "pip install numpy",
     "pip install mido",
     "pip install scipy",
     "pip install librosa",
     "pip install pillow",
-    "export PYTHONPATH=$(python3.11 -c 'import site; print(site.getsitepackages()[0])'):$PYTHONPATH",
-    "python3.11 -c 'import numpy; import librosa; print(\"All libraries installed successfully\")'",
     "chmod -R 775 /public",
     "chown -R www-data:www-data /public",
     "..."
@@ -88,7 +88,7 @@ stderr_logfile=/var/log/worker-phpfpm.log
 "worker-laravel.conf" = '''
 [program:worker-laravel]
 process_name=%(program_name)s_%(process_num)02d
-command=bash -c 'exec php /app/artisan queue:work --sleep=3 --tries=3 --max-time=3600'
+command=bash -c 'source /venv/bin/activate && php /app/artisan queue:work --sleep=3 --tries=3 --max-time=3600'
 autostart=true
 autorestart=true
 stopasgroup=true
