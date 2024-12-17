@@ -23,7 +23,7 @@ class TrackController extends Controller
         if (!file_exists($midiPath)) {
             throw new \RuntimeException("Midi file does not exist at path: $midiPath");
         }
-        $process = new Process(['python', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
+        $process = new Process(['python3', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
         try {
             $process->mustRun();
             $output = $process->getOutput();
@@ -66,7 +66,7 @@ class TrackController extends Controller
         if (!file_exists($midiPath)) {
             throw new \RuntimeException("Midi file does not exist at path: $midiPath");
         }
-        $process = new Process(['python', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
+        $process = new Process(['python3', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
         try {
             $process->mustRun();
             $output = $process->getOutput();
@@ -109,7 +109,7 @@ class TrackController extends Controller
             throw new \RuntimeException("Image file does not exist at path: $imagePath");
         }
 
-        $process = new Process(['python', $scriptPath, $imageDirPath, $imagePath]);
+        $process = new Process(['python3', $scriptPath, $imageDirPath, $imagePath]);
 
         try {
             $process->mustRun();

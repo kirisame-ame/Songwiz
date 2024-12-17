@@ -64,8 +64,8 @@ class ZipUploadController extends Controller
         $audio_dir = public_path('uploads/audio');
         $audioScript = base_path('scripts/audio_cache.py');
         $audioCacheDir = public_path('audio_cache');
-        $process = new Process(['python', $scriptPath, $midi_dir, $cache_dir]);
-        $process2 = new Process(['python', $audioScript, $audio_dir, $audioCacheDir]);
+        $process = new Process(['python3', $scriptPath, $midi_dir, $cache_dir]);
+        $process2 = new Process(['python3', $audioScript, $audio_dir, $audioCacheDir]);
         try{
             $process->mustRun();
             $process2->mustRun();

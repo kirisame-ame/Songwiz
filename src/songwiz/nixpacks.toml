@@ -7,8 +7,10 @@ cmds = [
     "pip install mido",
     "pip install scipy",
     "pip install librosa",
+    "pip install pillow",
     "chmod -R 775 /app",
     "chown -R www-data:www-data /app",
+    "export PATH=$PATH:/usr/local/bin",
     "..."
 ]
 nixPkgs = ["...", "python311Packages.supervisor"]
