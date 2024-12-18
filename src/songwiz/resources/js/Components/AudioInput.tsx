@@ -112,7 +112,6 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
         const file = event.target.files[0]
         if (file) {
             setFileName(file.name) // Update the file name display
-
             // Check if the file is audio or midi
             if (
                 file.type.startsWith('audio/mpeg') ||

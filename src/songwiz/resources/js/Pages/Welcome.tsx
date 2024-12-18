@@ -111,6 +111,7 @@ export default function Welcome({
                                             </button>
                                         </div>
                                     </div>
+
                                     <div className="flex min-h-40 w-full items-center justify-center rounded-b-lg bg-gray-50/50 py-3 text-center">
                                         {activeButton === 1 ? (
                                             <AudioInput
@@ -138,6 +139,7 @@ export default function Welcome({
                                             </p>
                                         )}
                                     </div>
+
                                     <QueryResultCard
                                         trackData={similarTracks}
                                     />

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Response;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use GuzzleHttp\Client;
 
 class TrackController extends Controller
 {
@@ -99,54 +100,50 @@ class TrackController extends Controller
     public function extractImageFeatures(Request $request)
     {
         $validated = $request->validate([
-            'file' => 'required | file',
+            'file' => 'required|file',
         ]);
-        copy($validated['file']->getRealPath(), public_path('temp/').$validated['file']->getClientOriginalName());
-        $scriptPath = base_path('scripts/image_dataset_processor.py');
-        $imageDirPath = public_path('uploads/img');
-        $imagePath = public_path('temp/') . $validated['file']->getClientOriginalName();
-        if (!file_exists($imagePath)) {
-            throw new \RuntimeException("Image file does not exist at path: $imagePath");
-        }
-
-        $process = new Process(['python', $scriptPath, $imageDirPath, $imagePath]);
-
-        try {
-            $process->mustRun();
-            $output = $process->getOutput();
+        $client = new Client();
+        $response = $client->post('http://localhost:5000/image-query', [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => fopen($validated['file']->getRealPath(), 'rb'),
+                    'filename' => $validated['file']->getClientOriginalName(),
+                    'headers' => [
+                        'Content-Type' => $validated['file']->getMimeType() // Set MIME type explicitly
+                    ]
+                ]
+            ]
+        ]);
+        if ($response->getStatusCode() === 200) {
+            $output = $response->getBody()->getContents();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
-
-            $similarImages = $result['similar_images'];
+            $similarImages = json_decode($result['similar_images'], true, 512, JSON_THROW_ON_ERROR);
             $similarImagesMetadata = [];
             foreach ($similarImages as $similarImage) {
-                $metadata = Track::where('cover_path', $similarImage)->first();
-                if ($metadata) {
-                    $similarImagesMetadata[] = [
-                        'name' => $metadata->name,
-                        'artist' => $metadata->artist,
-                        'cover_path' => $metadata->cover_path,
-                        'audio_path' => $metadata->audio_path,
-                        'audio_type' => $metadata->audio_type,
-                    ];
+                foreach ($similarImage as $image) {
+                    $metadata = Track::where('cover_path', $image['filename'])->first();
+                    if ($metadata) {
+                        $similarImagesMetadata[] = [
+                            'name' => $metadata->name,
+                            'artist' => $metadata->artist,
+                            'cover_path' => $metadata->cover_path,
+                            'audio_path' => $metadata->audio_path,
+                            'audio_type' => $metadata->audio_type,
+                            'score' => $image['similarity']
+                        ];
+                    }
                 }
             }
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
-            }
             return response()->json(['similar_images' => $similarImagesMetadata]);
-        } catch (ProcessFailedException | \Exception $exception) {
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
-            }
-            return response()->json(['error' => $exception->getMessage()]);
         }
 
-
+        return response()->json(['error' => 'Failed to extract image features']);
     }
     public function index()
     {
         try {
-            $tracks = Track::latest()->paginate(8);
+            $tracks = Track::orderBy('name')->paginate(8);
             return response()->json($tracks);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

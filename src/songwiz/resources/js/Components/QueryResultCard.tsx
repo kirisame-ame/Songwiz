@@ -32,14 +32,13 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) {
                         try {
                             const response = await fetch(
-                                'uploads/midi/' + track.audio_path
+                                'http://localhost:5000/fetch/midi/' +
+                                    track.audio_path
                             )
                             const blob = await response.blob()
-                            return new File(
-                                [blob],
-                                track.audio_path.split('/').pop() || 'file.mid',
-                                { type: 'audio/midi' }
-                            )
+                            return new File([blob], track.audio_path, {
+                                type: 'audio/midi',
+                            })
                         } catch (error) {
                             console.error(
                                 `Failed to fetch MIDI file: ${track.audio_path}`,
@@ -53,14 +52,13 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) {
                         try {
                             const response = await fetch(
-                                'uploads/audio/' + track.audio_path
+                                'http://localhost:5000/fetch/audio/' +
+                                    track.audio_path
                             )
                             const blob = await response.blob()
-                            return new File(
-                                [blob],
-                                track.audio_path.split('/').pop() || 'file.wav',
-                                { type: 'audio/wav' }
-                            )
+                            return new File([blob], track.audio_path, {
+                                type: `audio/${track.audio_type}`,
+                            })
                         } catch (error) {
                             console.error(
                                 `Failed to fetch audio file: ${track.audio_path}`,
@@ -73,6 +71,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                 })
             )
             setAudioFiles(files)
+            console.log('Fetched MIDI files:', files)
         }
 
         fetchMidiFiles()
@@ -91,7 +90,10 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                                 {index + 1}
                             </p>
                             <img
-                                src={'uploads/img/' + track.cover_path}
+                                src={
+                                    'http://localhost:5000/fetch/img/' +
+                                    track.cover_path
+                                }
                                 alt={track.name}
                                 className="h-48 w-48 rounded-full object-cover"
                             />
@@ -108,9 +110,16 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                         </div>
                     </div>
 
-                    {track.audio_type === 'wav' ||
-                    track.audio_type === 'mp3' ? (
-                        <WavMp3Player audioFile={audioFiles[index]} />
+                    {audioFiles[index] &&
+                    (track.audio_type === 'wav' ||
+                        track.audio_type === 'mp3') ? (
+                        <audio
+                            src={
+                                'http://localhost:5000/fetch/audio/' +
+                                track.audio_path
+                            }
+                            controls
+                        />
                     ) : audioFiles[index] ? (
                         <MidiPlayer midiFile={audioFiles[index]} />
                     ) : (
