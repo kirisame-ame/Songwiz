@@ -63,7 +63,7 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                             cover_path: track['cover_path'],
                             audio_path: track['audio_path'],
                             audio_type: track['audio_type'],
-                            score: 0,
+                            score: track['score'],
                         })
                     })
                 })

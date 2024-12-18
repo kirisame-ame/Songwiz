@@ -2,6 +2,8 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import zipfile
+from werkzeug.utils import secure_filename
+import image_dataset_processor as img_processor
 
 app = Flask(__name__)
 CORS(app)
@@ -103,6 +105,40 @@ def extract_zip_by_type(zip_path):
             target.write(source.read())
 
    return extracted_files
+
+@app.route("/image-query", methods=['POST'])
+def image_query():
+   if 'file' not in request.files:
+      return jsonify({'error': 'No file part'}), 400
+
+   uploaded_file = request.files['file']
+   print(request.files)
+   print(uploaded_file)
+
+   if uploaded_file.filename == '':
+      return jsonify({'error': 'No selected file'}), 400
+
+   original_filename = secure_filename(uploaded_file.filename)
+   # Save the uploaded file
+   file_path = os.path.join(TEMP_FOLDER, original_filename)
+   uploaded_file.save(file_path)
+
+   # Check if it's an image file
+   if not original_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+      if os.path.exists(file_path):
+         os.remove(file_path)
+      return jsonify({'error': 'Uploaded file is not an image'}), 400
+
+   try:
+      # Retrieve similar images
+      similar_images = img_processor.retrieve_similar_images(file_path, IMG_FOLDER)
+      return jsonify({'success': 'Image processed', 'similar_images': similar_images}), 200
+   except Exception as e:
+      return jsonify({'error': str(e)}), 400
+   finally:
+      # Clean up the uploaded file
+      if os.path.exists(file_path):
+         os.remove(file_path)
 
 
 @app.route("/")
