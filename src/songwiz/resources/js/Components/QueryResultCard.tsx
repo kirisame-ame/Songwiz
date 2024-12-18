@@ -113,8 +113,13 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     {audioFiles[index] &&
                     (track.audio_type === 'wav' ||
                         track.audio_type === 'mp3') ? (
-                        (console.log('audioFiles:', audioFiles[index]),
-                        (<WavMp3Player audioFile={audioFiles[index]} />))
+                        <audio
+                            src={
+                                'http://localhost:5000/fetch/audio/' +
+                                track.audio_path
+                            }
+                            controls
+                        />
                     ) : audioFiles[index] ? (
                         <MidiPlayer midiFile={audioFiles[index]} />
                     ) : (

@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import zipfile
-from werkzeug.utils import secure_filename
 import image_dataset_processor as img_processor
 
 app = Flask(__name__)
@@ -118,11 +117,11 @@ def image_query():
    if uploaded_file.filename == '':
       return jsonify({'error': 'No selected file'}), 400
 
-   original_filename = secure_filename(uploaded_file.filename)
+   original_filename = uploaded_file.filename
    # Save the uploaded file
    file_path = os.path.join(TEMP_FOLDER, original_filename)
    uploaded_file.save(file_path)
-
+   print(original_filename)
    # Check if it's an image file
    if not original_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
       if os.path.exists(file_path):
