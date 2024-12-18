@@ -5,3 +5,6 @@ src/songwiz/public/uploads/img/「Homura (炎 ) - LiSA」KAN⧸ENG⧸ROMAJI LYRI
 *.webp
 *.mp3
 *.pkl
+/src/songwiz-api/venv
+*.jpg
+/src/songwiz-api/__pycache__

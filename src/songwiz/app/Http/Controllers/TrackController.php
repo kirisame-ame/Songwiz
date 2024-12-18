@@ -146,7 +146,7 @@ class TrackController extends Controller
     public function index()
     {
         try {
-            $tracks = Track::latest()->paginate(8);
+            $tracks = Track::orderBy('name')->paginate(8);
             return response()->json($tracks);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
