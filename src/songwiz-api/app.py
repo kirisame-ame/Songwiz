@@ -1,9 +1,8 @@
-from flask import Flask, send_from_directory, request, jsonify, render_template
+from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import zipfile
-import shutil
-import src.image_dataset_processor as img_processor
+import image_dataset_processor as img_processor
 
 app = Flask(__name__)
 CORS(app)
@@ -42,54 +41,36 @@ def fetch(folder, file):
             return {"error": "File not found"}, 404
    else:
       return {"error": "Invalid folder"}, 400
-
-@app.route("/upload")
-def upload():
-    return render_template("upl.html")
-
+   
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+   if 'file' not in request.files:
+      return jsonify({'error': 'No file part'}), 400
 
-    # Get chunk data from the request
-    chunk_number = int(request.form.get('chunkNumber', 0))
-    total_chunks = int(request.form.get('totalChunks', 1))
+   uploaded_file = request.files['file']
 
-    uploaded_file = request.files['file']
-    
-    if uploaded_file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+   if uploaded_file.filename == '':
+      return jsonify({'error': 'No selected file'}), 400
 
-    # Save the chunk temporarily
-    temp_chunk_filename = os.path.join(TEMP_FOLDER, f'chunk_{chunk_number}')
-    uploaded_file.save(temp_chunk_filename)
+   # Save the uploaded file
+   file_path = os.path.join(TEMP_FOLDER, uploaded_file.filename)
+   uploaded_file.save(file_path)
 
-    # Check if it's the last chunk, and if so, reassemble the file
-    if chunk_number == total_chunks - 1:
-        final_filename = uploaded_file.filename
-        final_filepath = os.path.join(TEMP_FOLDER, final_filename)
-        
-        # Reassemble the file from chunks
-        with open(final_filepath, 'wb') as final_file:
-            for i in range(total_chunks):
-                chunk_filename = os.path.join(TEMP_FOLDER, f'chunk_{i}')
-                with open(chunk_filename, 'rb') as chunk_file:
-                    shutil.copyfileobj(chunk_file, final_file)
-                os.remove(chunk_filename)  # Remove the chunk after it's written to the final file
+   # Check if it's a .zip file
+   if not uploaded_file.filename.lower().endswith('.zip'):
+      return jsonify({'error': 'Uploaded file is not a .zip archive'}), 400
 
-        # Now process the final file (zip extraction in your case)
-        try:
-            # Process the zip file (check if it's a valid zip and extract contents)
-            extracted_files = extract_zip_by_type(final_filepath)
-            os.remove(final_filepath)  # Clean up the final file
-            return jsonify({'success': 'Files uploaded and extracted', 'details': extracted_files}), 200
-        except zipfile.BadZipFile:
-            return jsonify({'error': 'Invalid zip file'}), 400
-
-    # If it's not the last chunk, just return a success response
-    return jsonify({'message': f'Chunk {chunk_number} uploaded successfully'}), 200
+   try:
+      # Extract .zip files to designated folders
+      extracted_files = extract_zip_by_type(file_path)
+      return jsonify({'success': 'Files uploads', 'details': extracted_files}), 200
+   except zipfile.BadZipFile:
+      return jsonify({'error': 'Invalid zip file'}), 400
+   finally:
+      # Clean up the uploaded file
+      if os.path.exists(file_path):
+         os.remove(file_path)
 
 def extract_zip_by_type(zip_path):
    """Extract files from a .zip archive into separate folders based on file types."""
@@ -163,10 +144,6 @@ def image_query():
 def hello_world():
    return "<p>This is the songwiz-api</p>"
 
-
 @app.route("/check")
 def check():
    return app.root_path
-
-if __name__ == '__main__':
-   app.run(host='localhost', port=5000)
