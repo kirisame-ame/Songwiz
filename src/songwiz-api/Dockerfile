@@ -19,8 +19,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY src /app/src
 COPY gunicorn /app/gunicorn
 
-# Create volume for persistent data
-VOLUME /var/www/html
 
 # Expose necessary ports
 EXPOSE 80 5000
