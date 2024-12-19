@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify
+from flask import Flask, send_from_directory, request, jsonify, render_template
 from flask_cors import CORS
 import os
 import zipfile
@@ -41,7 +41,10 @@ def fetch(folder, file):
             return {"error": "File not found"}, 404
    else:
       return {"error": "Invalid folder"}, 400
-   
+
+@app.rout("/upload")
+def upload():
+    return render_template("upl.html")
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def upload_file():
