@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import UpArrowIcon from '@/svg/UpArrowIcon'
 
+const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
     const [file, setFile] = useState<File | null>(null)
@@ -16,7 +17,7 @@ function DatasetLoader() {
             formData.append('file', file)
 
             try {
-                await axios.post('http://localhost:5000/upload', formData, {
+                await axios.post(API_URL + '/upload', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 })
                 console.log('Upload complete')

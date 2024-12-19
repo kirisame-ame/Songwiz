@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import SongCard from '@/Components/SongCard'
 
+const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 // unauthenticated user can access this page
 export default function Database() {
     const [tracks, setTracks] = useState([])
@@ -85,8 +86,7 @@ export default function Database() {
                             <SongCard
                                 key={track.id}
                                 image={
-                                    'http://localhost:5000/fetch/img/' +
-                                    track.cover_path
+                                    API_URL + '/fetch/img/' + track.cover_path
                                 }
                                 title={removeExtension(track.name)}
                                 artist={track.artist}
