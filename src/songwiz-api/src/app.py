@@ -44,7 +44,7 @@ def fetch(folder, file):
 
 @app.route("/upload")
 def upload():
-    return render_template("src/upl.html")
+    return render_template("upl.html")
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def upload_file():
