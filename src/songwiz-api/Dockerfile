@@ -24,4 +24,4 @@ COPY gunicorn /app/gunicorn
 EXPOSE 80 5000
 
 # Start Nginx and Gunicorn together
-CMD service nginx start && gunicorn --config gunicorn/gunicorn_config.py src.app:app
+CMD gunicorn --config gunicorn/gunicorn_config.py src.app:app
