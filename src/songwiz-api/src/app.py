@@ -2,7 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import zipfile
-import image_dataset_processor as img_processor
+import src.image_dataset_processor as img_processor
 
 app = Flask(__name__)
 CORS(app)
@@ -148,3 +148,6 @@ def hello_world():
 @app.route("/check")
 def check():
    return app.root_path
+
+if __name__ == '__main__':
+   app.run(host='localhost', port=5000)
