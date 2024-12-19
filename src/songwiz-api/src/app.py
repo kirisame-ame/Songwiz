@@ -144,6 +144,10 @@ def image_query():
 def hello_world():
    return "<p>This is the songwiz-api</p>"
 
+
 @app.route("/check")
 def check():
    return app.root_path
+
+if __name__ == '__main__':
+   app.run(host='localhost', port=5000)
