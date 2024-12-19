@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import MidiPlayer from '@/Components/MidiPlayer'
 import WavMp3Player from '@/Components/WavMp3Player'
 
-const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
-
 interface TrackData {
     name: string
     artist: string
@@ -34,7 +32,8 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) {
                         try {
                             const response = await fetch(
-                                API_URL + '/fetch/midi/' + track.audio_path
+                                'http://localhost:5000/fetch/midi/' +
+                                    track.audio_path
                             )
                             const blob = await response.blob()
                             return new File([blob], track.audio_path, {
@@ -53,7 +52,8 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) {
                         try {
                             const response = await fetch(
-                                API_URL + '/fetch/audio/' + track.audio_path
+                                'http://localhost:5000/fetch/audio/' +
+                                    track.audio_path
                             )
                             const blob = await response.blob()
                             return new File([blob], track.audio_path, {
@@ -90,7 +90,10 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                                 {index + 1}
                             </p>
                             <img
-                                src={API_URL + 'fetch/img/' + track.cover_path}
+                                src={
+                                    'http://localhost:5000/fetch/img/' +
+                                    track.cover_path
+                                }
                                 alt={track.name}
                                 className="h-48 w-48 rounded-full object-cover"
                             />
@@ -111,7 +114,10 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     (track.audio_type === 'wav' ||
                         track.audio_type === 'mp3') ? (
                         <audio
-                            src={API_URL + '/fetch/audio/' + track.audio_path}
+                            src={
+                                'http://localhost:5000/fetch/audio/' +
+                                track.audio_path
+                            }
                             controls
                         />
                     ) : audioFiles[index] ? (
