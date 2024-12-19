@@ -125,7 +125,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) : (
                         <p>Loading MIDI...</p>
                     )}
-                    <p>{track.score}</p>
+                    <p className="max-w-8 overflow-hidden">{track.score}</p>
                 </div>
             ))}
         </div>
