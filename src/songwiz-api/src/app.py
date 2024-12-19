@@ -148,6 +148,3 @@ def hello_world():
 @app.route("/check")
 def check():
    return app.root_path
-
-if __name__ == '__main__':
-   app.run(host='localhost', port=5000)
