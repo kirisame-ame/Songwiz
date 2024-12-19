@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import UpArrowIcon from '@/svg/UpArrowIcon'
 
-const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
     const [file, setFile] = useState<File | null>(null)
@@ -13,42 +12,13 @@ function DatasetLoader() {
     const handleLoadDataset = async () => {
         if (file) {
             setIsUploading(true) // Show modal and spinner
-            const chunkSize = 50 * 1024 * 1024 // 50 MB per chunk, adjust as needed
-            const totalChunks = Math.ceil(file.size / chunkSize)
-            let currentChunk = 0
-
-            const uploadChunk = async (start: number | undefined) => {
-                // @ts-ignore
-                const chunk = file.slice(start, start + chunkSize)
-                const formData = new FormData()
-                formData.append('file', chunk)
-                // @ts-ignore
-                formData.append('chunkNumber', currentChunk)
-                // @ts-ignore
-                formData.append('totalChunks', totalChunks)
-
-                try {
-                    await axios.post('http://localhost:5000/upload', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' },
-                    })
-                    currentChunk += 1
-                    console.log(`Chunk ${currentChunk} uploaded`)
-                } catch (err) {
-                    console.error(`Chunk ${currentChunk} upload failed`, err)
-                    throw err // Stop uploading if any chunk fails
-                }
-            }
-
-            const uploadAllChunks = async () => {
-                for (let start = 0; start < file.size; start += chunkSize) {
-                    await uploadChunk(start)
-                }
-            }
+            const formData = new FormData()
+            formData.append('file', file)
 
             try {
-                await uploadAllChunks()
-
-
+                await axios.post('http://localhost:5000/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
                 console.log('Upload complete')
                 setIsUploadComplete(true) // Mark upload as complete
             } catch (err) {
