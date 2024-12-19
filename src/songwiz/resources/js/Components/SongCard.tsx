@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import MidiPlayer from './MidiPlayer'
 import WavMp3Player from './WavMp3Player'
 
+const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 interface SongCardProps {
     image: string
     title: string
@@ -48,9 +49,9 @@ const SongCard: React.FC<SongCardProps> = ({
 
     const getAudioPath = (audio_type: string, audio_path: string) => {
         if (audio_type === 'midi' || audio_type === 'mid') {
-            return `http://localhost:5000/fetch/midi/${audio_path}`
+            return `${API_URL}/fetch/midi/${audio_path}`
         } else if (audio_type === 'mp3' || audio_type === 'wav') {
-            return `http://localhost:5000/fetch/audio/${audio_path}`
+            return `${API_URL}/fetch/audio/${audio_path}`
         }
         return audio_path
     }
