@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify, render_template
 from flask_cors import CORS
 import os
+import uuid
 import zipfile
 import src.image_dataset_processor as img_processor
 
@@ -13,6 +14,7 @@ MID_FOLDER = 'uploads/midi'
 IMG_FOLDER = 'uploads/img'
 OTHER_FOLDER = 'uploads/other'
 TEMP_FOLDER = 'uploads/temp'
+FINAL_FOLDER = 'uploads/final'
 
 # Ensure all directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -47,56 +49,58 @@ def upload():
     return render_template("upl.html")
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
-def upload_file():
-    # Extract chunk metadata
-    chunk_index = request.form.get('chunk', type=int)
-    total_chunks = request.form.get('totalChunks', type=int)
-    file_name = request.form.get('name')
+def initiate_upload():
+    """
+    Handles the initial POST request to generate a unique transfer ID.
+    """
+    transfer_id = str(uuid.uuid4())  # Generate a unique ID
+    transfer_path = os.path.join(TEMP_FOLDER, transfer_id)
+    os.makedirs(transfer_path, exist_ok=True)  # Create a directory for the chunks
 
-    # Ensure file name and chunk index are valid
-    if not file_name or chunk_index is None or total_chunks is None:
-        return jsonify({'error': 'Missing chunk metadata'}), 400
+    # Respond with the unique transfer ID
+    return transfer_id, 200, {'Content-Type': 'text/plain'}
 
-    # Get raw file data from the request
-    if 'file' in request.files:
-        uploaded_file = request.files['file']
-        file_data = uploaded_file.read()
-    else:
-        file_data = request.data
 
-    if not file_data:
-        return jsonify({'error': 'No file data received'}), 400
+@app.route('/upload/<transfer_id>', methods=['PATCH'])
+def upload_chunk(transfer_id):
+    """
+    Handles the PATCH requests to receive file chunks.
+    """
+    # Validate the transfer ID
+    transfer_path = os.path.join(TEMP_FOLDER, transfer_id)
+    if not os.path.exists(transfer_path):
+        return jsonify({'error': 'Invalid transfer ID'}), 404
 
-    # Save the chunk to a temporary folder
-    chunk_file_path = os.path.join(TEMP_FOLDER, f"{file_name}.part{chunk_index}")
-    with open(chunk_file_path, 'wb') as chunk_file:
-        chunk_file.write(file_data)
+    # Get headers
+    upload_offset = int(request.headers.get('Upload-Offset', 0))
+    upload_length = int(request.headers.get('Upload-Length', 0))
+    file_name = request.headers.get('Upload-Name')
 
-    # If it's the last chunk, assemble all chunks
-    if chunk_index == total_chunks - 1:
-        assembled_file_path = os.path.join(TEMP_FOLDER, file_name)
-        with open(assembled_file_path, 'wb') as assembled_file:
-            for i in range(total_chunks):
-                part_path = os.path.join(TEMP_FOLDER, f"{file_name}.part{i}")
-                with open(part_path, 'rb') as part_file:
-                    assembled_file.write(part_file.read())
-                os.remove(part_path)  # Clean up the chunk file
+    if not file_name:
+        return jsonify({'error': 'Missing Upload-Name header'}), 400
 
-        # Check if it's a .zip file
-        if not file_name.lower().endswith('.zip'):
-            os.remove(assembled_file_path)
-            return jsonify({'error': 'Uploaded file is not a .zip archive'}), 400
+    # Determine the file path
+    file_path = os.path.join(transfer_path, file_name)
 
-        try:
-            # Extract .zip files to designated folders
-            extracted_files = extract_zip_by_type(assembled_file_path)
-            os.remove(assembled_file_path)  # Clean up the uploaded file
-            return jsonify({'success': 'Files uploaded', 'details': extracted_files}), 200
-        except zipfile.BadZipFile:
-            os.remove(assembled_file_path)
-            return jsonify({'error': 'Invalid zip file'}), 400
+    # Write the chunk data
+    with open(file_path, 'ab') as file:
+        file.seek(upload_offset)  # Seek to the correct offset
+        file.write(request.data)  # Append the chunk data
 
-    return jsonify({'success': f'Chunk {chunk_index + 1} uploaded successfully'}), 200
+    # Check if the upload is complete
+    current_size = os.path.getsize(file_path)
+    if current_size == upload_length:
+        # Move the file to the final destination
+        final_path = os.path.join(FINAL_FOLDER, file_name)
+        os.rename(file_path, final_path)
+
+        # Clean up the transfer directory
+        os.rmdir(transfer_path)
+
+        return jsonify({'success': 'File uploaded successfully'}), 200
+
+    # Respond with success for the chunk
+    return jsonify({'success': 'Chunk received'}), 200
 
 def extract_zip_by_type(zip_path):
    """Extract files from a .zip archive into separate folders based on file types."""
