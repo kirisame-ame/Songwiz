@@ -48,32 +48,49 @@ def upload():
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def upload_file():
-   if 'file' not in request.files:
-      return jsonify({'error': 'No file part'}), 400
+    # Extract chunk metadata
+    chunk_index = request.form.get('chunk', type=int)
+    total_chunks = request.form.get('totalChunks', type=int)
+    file_name = request.form.get('name')
 
-   uploaded_file = request.files['file']
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
 
-   if uploaded_file.filename == '':
-      return jsonify({'error': 'No selected file'}), 400
+    uploaded_file = request.files['file']
 
-   # Save the uploaded file
-   file_path = os.path.join(TEMP_FOLDER, uploaded_file.filename)
-   uploaded_file.save(file_path)
+    # Ensure file name and chunk index are valid
+    if not file_name or chunk_index is None or total_chunks is None:
+        return jsonify({'error': 'Missing chunk metadata'}), 400
 
-   # Check if it's a .zip file
-   if not uploaded_file.filename.lower().endswith('.zip'):
-      return jsonify({'error': 'Uploaded file is not a .zip archive'}), 400
+    # Save the chunk to a temporary folder
+    chunk_file_path = os.path.join(TEMP_FOLDER, f"{file_name}.part{chunk_index}")
+    uploaded_file.save(chunk_file_path)
 
-   try:
-      # Extract .zip files to designated folders
-      extracted_files = extract_zip_by_type(file_path)
-      return jsonify({'success': 'Files uploads', 'details': extracted_files}), 200
-   except zipfile.BadZipFile:
-      return jsonify({'error': 'Invalid zip file'}), 400
-   finally:
-      # Clean up the uploaded file
-      if os.path.exists(file_path):
-         os.remove(file_path)
+    # If it's the last chunk, assemble all chunks
+    if chunk_index == total_chunks - 1:
+        assembled_file_path = os.path.join(TEMP_FOLDER, file_name)
+        with open(assembled_file_path, 'wb') as assembled_file:
+            for i in range(total_chunks):
+                part_path = os.path.join(TEMP_FOLDER, f"{file_name}.part{i}")
+                with open(part_path, 'rb') as part_file:
+                    assembled_file.write(part_file.read())
+                os.remove(part_path)  # Clean up the chunk file
+
+        # Check if it's a .zip file
+        if not file_name.lower().endswith('.zip'):
+            os.remove(assembled_file_path)
+            return jsonify({'error': 'Uploaded file is not a .zip archive'}), 400
+
+        try:
+            # Extract .zip files to designated folders
+            extracted_files = extract_zip_by_type(assembled_file_path)
+            os.remove(assembled_file_path)  # Clean up the uploaded file
+            return jsonify({'success': 'Files uploaded', 'details': extracted_files}), 200
+        except zipfile.BadZipFile:
+            os.remove(assembled_file_path)
+            return jsonify({'error': 'Invalid zip file'}), 400
+
+    return jsonify({'success': f'Chunk {chunk_index + 1} uploaded successfully'}), 200
 
 def extract_zip_by_type(zip_path):
    """Extract files from a .zip archive into separate folders based on file types."""
