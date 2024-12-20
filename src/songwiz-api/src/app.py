@@ -53,18 +53,24 @@ def upload_file():
     total_chunks = request.form.get('totalChunks', type=int)
     file_name = request.form.get('name')
 
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-
-    uploaded_file = request.files['file']
-
     # Ensure file name and chunk index are valid
     if not file_name or chunk_index is None or total_chunks is None:
         return jsonify({'error': 'Missing chunk metadata'}), 400
 
+    # Get raw file data from the request
+    if 'file' in request.files:
+        uploaded_file = request.files['file']
+        file_data = uploaded_file.read()
+    else:
+        file_data = request.data
+
+    if not file_data:
+        return jsonify({'error': 'No file data received'}), 400
+
     # Save the chunk to a temporary folder
     chunk_file_path = os.path.join(TEMP_FOLDER, f"{file_name}.part{chunk_index}")
-    uploaded_file.save(chunk_file_path)
+    with open(chunk_file_path, 'wb') as chunk_file:
+        chunk_file.write(file_data)
 
     # If it's the last chunk, assemble all chunks
     if chunk_index == total_chunks - 1:
