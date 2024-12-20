@@ -12,7 +12,7 @@ export const FileUploader = (props: FileUploaderProps) => {
     const [files, setFiles] = useState<File[]>([])
 
     return (
-        <div>
+        <div className={styles.wrapper}>
             <FilePond
                 files={files}
                 onupdatefiles={setFiles}
