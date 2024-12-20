@@ -28,6 +28,8 @@
     },
     "dependencies": {
         "@tonejs/midi": "^2.0.28",
-        "jszip": "^3.10.1"
+        "filepond": "^4.32.5",
+        "jszip": "^3.10.1",
+        "react-filepond": "^7.1.3"
     }
 }
