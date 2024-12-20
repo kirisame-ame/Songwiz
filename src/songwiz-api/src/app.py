@@ -87,7 +87,7 @@ def upload_chunk(transfer_id):
         file.seek(upload_offset)  # Seek to the correct offset
         file.write(request.data)  # Append the chunk data
 
-    # Check if the upload is complete
+    # Check if the upload is complete  
     current_size = os.path.getsize(file_path)
     if current_size == upload_length:
         # Move the file to the final destination
@@ -97,7 +97,7 @@ def upload_chunk(transfer_id):
         # Clean up the transfer directory
         os.rmdir(transfer_path)
 
-        return jsonify({'success': 'File uploaded successfully'}), 200
+        return jsonify({'id': transfer_id}), 200 
 
     # Respond with success for the chunk
     return jsonify({'success': 'Chunk received'}), 200
