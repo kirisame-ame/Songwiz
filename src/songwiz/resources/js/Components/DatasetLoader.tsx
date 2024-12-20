@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import UpArrowIcon from '@/svg/UpArrowIcon'
+import ReactDOM from 'react-dom'
+import { FilePond, registerPlugin } from 'react-filepond'
+
+// Import FilePond styles
+import 'filepond/dist/filepond.min.css'
 
 const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 function DatasetLoader() {
@@ -64,6 +69,7 @@ function DatasetLoader() {
         setIsUploadComplete(false)
     }
 
+    // @ts-ignore
     return (
         <div className="flex flex-row items-center gap-x-10">
             <input
@@ -84,6 +90,15 @@ function DatasetLoader() {
             >
                 Load Dataset
             </button>
+            <FilePond
+                files={file}
+                onupdatefiles={setFile}
+                allowMultiple={true}
+                maxFiles={3}
+                server={API_URL + '/upload'}
+                name="files" /* sets the file input name, it's filepond by default */
+                labelIdle='Upload <span class="filepond--label-action">Browse</span>'
+            />
             <button
                 onClick={handleProcessDataset}
                 className="border-1 flex items-center rounded-md bg-white px-2 text-lg text-black transition duration-200 hover:scale-110"
