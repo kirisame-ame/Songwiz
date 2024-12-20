@@ -86,7 +86,7 @@ function DatasetLoader() {
             >
                 Load Dataset
             </button>
-            <FileUploader fileTypes={['application/zip']} />
+            <FileUploader />
             <button
                 onClick={handleProcessDataset}
                 className="border-1 flex items-center rounded-md bg-white px-2 text-lg text-black transition duration-200 hover:scale-110"
