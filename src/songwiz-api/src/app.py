@@ -51,89 +51,48 @@ def upload():
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def initiate_upload():
-    """
-    Handles the initial POST request to generate a unique transfer ID.
-    """
-    file = request.files['file']
+   """
+   Handles the initial POST request to generate a unique transfer ID.
+   """
+   file = request.files['file']
 
-    save_path = os.path.join(TEMP_FOLDER, file.filename)
-    current_chunk = int(request.form['dzchunkindex'])
+   save_path = os.path.join(TEMP_FOLDER, file.filename)
+   current_chunk = int(request.form['dzchunkindex'])
 
-    # If the file already exists it's ok if we are appending to it,
-    # but not if it's new file that would overwrite the existing one
-    if os.path.exists(save_path) and current_chunk == 0:
-        # 400 and 500s will tell dropzone that an error occurred and show an error
-        return make_response(('File already exists', 400))
+   # If the file already exists it's ok if we are appending to it,
+   # but not if it's new file that would overwrite the existing one
+   if os.path.exists(save_path) and current_chunk == 0:
+      # 400 and 500s will tell dropzone that an error occurred and show an error
+      return make_response(('File already exists', 400))
 
-    try:
-        with open(save_path, 'ab') as f:
-            f.seek(int(request.form['dzchunkbyteoffset']))
-            f.write(file.stream.read())
-    except OSError:
-        # log.exception will include the traceback so we can see what's wrong 
-        log.exception('Could not write to file')
-        return make_response(("Not sure why,"
-                              " but we couldn't write the file to disk", 500))
+   try:
+      with open(save_path, 'ab') as f:
+         f.seek(int(request.form['dzchunkbyteoffset']))
+         f.write(file.stream.read())
+   except OSError:
+      # log.exception will include the traceback so we can see what's wrong 
+      log.exception('Could not write to file')
+      return make_response(("Not sure why,"
+                           " but we couldn't write the file to disk", 500))
 
-    total_chunks = int(request.form['dztotalchunkcount'])
+   total_chunks = int(request.form['dztotalchunkcount'])
 
-    if current_chunk + 1 == total_chunks:
-        # This was the last chunk, the file should be complete and the size we expect
-        if os.path.getsize(save_path) != int(request.form['dztotalfilesize']):
-            log.error(f"File {file.filename} was completed, "
-                      f"but has a size mismatch."
-                      f"Was {os.path.getsize(save_path)} but we"
-                      f" expected {request.form['dztotalfilesize']} ")
-            return make_response(('Size mismatch', 500))
-        else:
-            log.info(f'File {file.filename} has been uploaded successfully')
-    else:
-        log.debug(f'Chunk {current_chunk + 1} of {total_chunks} '
-                  f'for file {file.filename} complete')
-
-    return make_response(("Chunk upload successful", 200))
-
-
-@app.route('/upload/<transfer_id>', methods=['PATCH'])
-def upload_chunk(transfer_id):
-    """
-    Handles the PATCH requests to receive file chunks.
-    """
-    # Validate the transfer ID
-    transfer_path = os.path.join(TEMP_FOLDER, transfer_id)
-    if not os.path.exists(transfer_path):
-        return jsonify({'error': 'Invalid transfer ID'}), 404
-
-    # Get headers
-    upload_offset = int(request.headers.get('Upload-Offset', 0))
-    upload_length = int(request.headers.get('Upload-Length', 0))
-    file_name = request.headers.get('Upload-Name')
-
-    if not file_name:
-        return jsonify({'error': 'Missing Upload-Name header'}), 400
-
-    # Determine the file path
-    file_path = os.path.join(transfer_path, file_name)
-
-    # Write the chunk data
-    with open(file_path, 'ab') as file:
-        file.seek(upload_offset)  # Seek to the correct offset
-        file.write(request.data)  # Append the chunk data
-
-    # Check if the upload is complete  
-    current_size = os.path.getsize(file_path)
-    if current_size == upload_length:
-        # Move the file to the final destination
-        final_path = os.path.join(FINAL_FOLDER, file_name)
-        os.rename(file_path, final_path)
-
-        # Clean up the transfer directory
-        os.rmdir(transfer_path)
-
-        return jsonify({'id': transfer_id}), 200 
-
-    # Respond with success for the chunk
-    return jsonify({'success': 'Chunk received'}), 200
+   if current_chunk + 1 == total_chunks:
+      # This was the last chunk, the file should be complete and the size we expect
+      if os.path.getsize(save_path) != int(request.form['dztotalfilesize']):
+         log.error(f"File {file.filename} was completed, "
+                     f"but has a size mismatch."
+                     f"Was {os.path.getsize(save_path)} but we"
+                     f" expected {request.form['dztotalfilesize']} ")
+         return make_response(('Size mismatch', 500))
+      else:
+         log.info(f'File {file.filename} has been uploaded successfully')
+   else:
+      log.debug(f'Chunk {current_chunk + 1} of {total_chunks} '
+               f'for file {file.filename} complete')
+   extract_zip_by_type(save_path)
+   os.remove(save_path)
+   return make_response(("Chunk upload successful", 200))
 
 def extract_zip_by_type(zip_path):
    """Extract files from a .zip archive into separate folders based on file types."""
