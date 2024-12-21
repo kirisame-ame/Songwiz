@@ -90,10 +90,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                                 {index + 1}
                             </p>
                             <img
-                                src={
-                                    'http://localhost:5000/fetch/img/' +
-                                    track.cover_path
-                                }
+                                src={API_URL + '/fetch/img/' + track.cover_path}
                                 alt={track.name}
                                 className="h-48 w-48 rounded-full object-cover"
                             />
