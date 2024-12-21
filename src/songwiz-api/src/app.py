@@ -90,8 +90,6 @@ def initiate_upload():
    else:
       log.debug(f'Chunk {current_chunk + 1} of {total_chunks} '
                f'for file {file.filename} complete')
-   extract_zip_by_type(save_path)
-   os.remove(save_path)
    return make_response(("Chunk upload successful", 200))
 
 def extract_zip_by_type(zip_path):
