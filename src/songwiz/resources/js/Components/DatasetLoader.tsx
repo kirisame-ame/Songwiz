@@ -3,6 +3,7 @@ import axios from 'axios'
 import UpArrowIcon from '@/svg/UpArrowIcon'
 import { FileUploader } from '@/Components/FileUploader'
 
+const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 function DatasetLoader() {
     const [fileName, setFileName] = useState('')
     const [file, setFile] = useState<File | null>(null)

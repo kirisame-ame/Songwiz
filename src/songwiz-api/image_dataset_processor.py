@@ -70,6 +70,6 @@ def retrieve_similar_images(query_image, image_database_dir, num_pca_components=
 
     # Sort the filtered results by similarity and get top N
     top_indices = np.argsort([similarity for _, similarity in filtered_results])[-top_n:][::-1]
-    result = {'similar_images':[{'filename':filtered_results[i][0], 'similarity':np.round(filtered_results[i][1],2)} for i in top_indices]}
+    result = {'similar_images':[{'filename':filtered_results[i][0], 'similarity':filtered_results[i][1]} for i in top_indices]}
     return json.dumps(result)
 
