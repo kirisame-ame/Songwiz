@@ -103,7 +103,7 @@ class TrackController extends Controller
             'file' => 'required|file',
         ]);
         $client = new Client();
-        $response = $client->post(env('API_URL').'/image-query', [
+        $response = $client->post('http://localhost:5000/image-query', [
             'multipart' => [
                 [
                     'name' => 'file',
