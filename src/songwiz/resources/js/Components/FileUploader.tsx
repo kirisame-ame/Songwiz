@@ -13,7 +13,7 @@ const FileUploader = () => {
             paramName: 'file',
             chunking: true,
             forceChunking: true,
-            maxFilesize: 1025, // in MB
+            maxFilesize: 10250, // in MB
             chunkSize: 1000000, // in bytes (1 MB chunks)
         })
 

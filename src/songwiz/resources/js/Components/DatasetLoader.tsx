@@ -5,53 +5,20 @@ import FileUploader from '@/Components/FileUploader'
 
 const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 function DatasetLoader() {
-    const [fileName, setFileName] = useState('')
-    const [file, setFile] = useState<File | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const [isModalMinimized, setIsModalMinimized] = useState(false)
     const [isUploadComplete, setIsUploadComplete] = useState(false)
 
-    const handleLoadDataset = async () => {
-        if (file) {
-            setIsUploading(true) // Show modal and spinner
-            const formData = new FormData()
-            formData.append('file', file)
-
-            try {
-                await axios.post(API_URL + '/upload', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                })
-                console.log('Upload complete')
-                setIsUploadComplete(true) // Mark upload as complete
-            } catch (err) {
-                console.error('Upload failed', err)
-            } finally {
-                setIsUploading(false) // Hide spinner
-            }
-        }
-    }
-
     const handleProcessDataset = async () => {
         setIsUploading(true)
         try {
-            await axios.post('/cache')
+            await axios.post(API_URL+'/process')
             console.log('Processing complete')
             setIsUploadComplete(true)
         } catch (err) {
             console.error('Processing failed', err)
         } finally {
             setIsUploading(false)
-        }
-    }
-    const handleButtonClick = () => {
-        document.getElementById('hidden-zip-input')?.click()
-    }
-
-    const handleFileChange = (event: any) => {
-        const file = event.target.files[0]
-        if (file) {
-            setFile(file)
-            setFileName(file.name)
         }
     }
 
@@ -67,24 +34,6 @@ function DatasetLoader() {
 
     return (
         <div className="flex flex-row items-center gap-x-10">
-            <input
-                id="hidden-zip-input"
-                type="file"
-                accept=".zip"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-            />
-            {fileName && <p>Selected File: {fileName}</p>}
-
-            <button onClick={handleButtonClick}>
-                {fileName ? 'Change Zip File' : 'Upload Zip File'}
-            </button>
-            <button
-                onClick={handleLoadDataset}
-                className={fileName ? 'block' : 'hidden'}
-            >
-                Load Dataset
-            </button>
             <FileUploader />
             <button
                 onClick={handleProcessDataset}
