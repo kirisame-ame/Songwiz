@@ -14,20 +14,23 @@ class TrackController extends Controller
     public function extractMidiFeatures(Request $request)
     {
         $validated = $request->validate([
-            'file' => 'required | file|mimes:mid',
+            'file' => 'required | file',
         ]);
-        copy($validated['file']->getRealPath(), public_path('temp/') . $validated['file']->getClientOriginalName());
-        $scriptPath = base_path('scripts/midi_query.py');
-        $midiDirPath = public_path('uploads/midi');
-        $midiPath = public_path('temp/') . $validated['file']->getClientOriginalName();
-        $cache_path = public_path('midi_cache');
-        if (!file_exists($midiPath)) {
-            throw new \RuntimeException("Midi file does not exist at path: $midiPath");
-        }
-        $process = new Process(['python', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
-        try {
-            $process->mustRun();
-            $output = $process->getOutput();
+        $client = new Client();
+        $response = $client->post(env('API_URL').'/midi-query', [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => fopen($validated['file']->getRealPath(), 'rb'),
+                    'filename' => $validated['file']->getClientOriginalName(),
+                    'headers' => [
+                        'Content-Type' => $validated['file']->getMimeType() // Set MIME type explicitly
+                    ]
+                ]
+            ]
+        ]);
+        if ($response->getStatusCode() === 200) {
+            $output = $response->getBody()->getContents();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
             $similarMidiData = [];
             foreach($result as $key=>$value){
@@ -47,11 +50,6 @@ class TrackController extends Controller
                 unlink($midiPath);
             }
             return response()->json(['similar_midi' => $similarMidiData]);
-        } catch (ProcessFailedException|\Exception $exception) {
-            if (file_exists($midiPath)) {
-                unlink($midiPath);
-            }
-            return response()->json(['error' => $exception->getMessage()]);
         }
     }
     public function extractAudioFeatures(Request $request)
@@ -59,18 +57,21 @@ class TrackController extends Controller
         $validated = $request->validate([
             'file' => 'required | file',
         ]);
-        copy($validated['file']->getRealPath(), public_path('temp/') . $validated['file']->getClientOriginalName());
-        $scriptPath = base_path('scripts/midi_query.py');
-        $midiDirPath = public_path('uploads/midi');
-        $midiPath = public_path('temp/') . $validated['file']->getClientOriginalName();
-        $cache_path = public_path('midi_cache');
-        if (!file_exists($midiPath)) {
-            throw new \RuntimeException("Midi file does not exist at path: $midiPath");
-        }
-        $process = new Process(['python', $scriptPath, $midiDirPath, $cache_path, $midiPath]);
-        try {
-            $process->mustRun();
-            $output = $process->getOutput();
+        $client = new Client();
+        $response = $client->post(env('API_URL').'/audio-query', [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => fopen($validated['file']->getRealPath(), 'rb'),
+                    'filename' => $validated['file']->getClientOriginalName(),
+                    'headers' => [
+                        'Content-Type' => $validated['file']->getMimeType() // Set MIME type explicitly
+                    ]
+                ]
+            ]
+        ]);
+        if ($response->getStatusCode() === 200) {
+            $output = $response->getBody()->getContents();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
             $similarMidiData = [];
             foreach($result as $key=>$value){
@@ -89,12 +90,7 @@ class TrackController extends Controller
             if (file_exists($midiPath)) {
                 unlink($midiPath);
             }
-            return response()->json(['similar_midi' => $similarMidiData]);
-        } catch (ProcessFailedException|\Exception $exception) {
-            if (file_exists($midiPath)) {
-                unlink($midiPath);
-            }
-            return response()->json(['error' => $exception->getMessage()]);
+            return response()->json(['similar_audio' => $similarMidiData]);
         }
     }
     public function extractImageFeatures(Request $request)
