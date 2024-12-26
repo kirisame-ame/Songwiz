@@ -46,9 +46,6 @@ class TrackController extends Controller
                     ];
                 }
             }
-            if (file_exists($midiPath)) {
-                unlink($midiPath);
-            }
             return response()->json(['similar_midi' => $similarMidiData]);
         }
     }
@@ -86,9 +83,6 @@ class TrackController extends Controller
                         'score' => $value
                     ];
                 }
-            }
-            if (file_exists($midiPath)) {
-                unlink($midiPath);
             }
             return response()->json(['similar_audio' => $similarMidiData]);
         }
