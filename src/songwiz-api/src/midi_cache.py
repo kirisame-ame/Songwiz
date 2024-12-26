@@ -1,6 +1,6 @@
 import os
 import pickle
-import midi_music as music
+import src.midi_music as music
 from multiprocessing import Pool, cpu_count
 import json
 def get_feature_cache_path(file_path, cache_dir):

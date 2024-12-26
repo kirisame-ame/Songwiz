@@ -2,7 +2,7 @@ import numpy as np
 from mido import MidiFile
 import pickle
 import os
-import midi_cache as cache
+import src.midi_cache as cache
 from multiprocessing import Pool, cpu_count
 
 
