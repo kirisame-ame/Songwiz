@@ -224,20 +224,15 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_d
     Match the humming file with the database using sliding window and cosine similarity.
     """
     # Cek cache untuk humming file
-    cached_features = cache.load_features_from_cache(hummed_file,cache_dir)
-    if cached_features is not None:
-        print(f"Cache ditemukan untuk {hummed_file}. Menggunakan cache...")
-        hummed_features_array = cached_features
-    else:
-        try:
-            pitches, onset_times = extract_melody_from_midi(hummed_file)
-        except Exception as e:
-            print(f"Error reading humming file: {e}")
-            return {}
+    try:
+        pitches, onset_times = extract_melody_from_midi(hummed_file)
+    except Exception as e:
+        print(f"Error reading humming file: {e}")
+        return {}
 
-        if not pitches or not onset_times:
-            print("Humming file contains no melody.")
-            return {}
+    if not pitches or not onset_times:
+        print("Humming file contains no melody.")
+        return {}
 
     # Convert onset_times from ticks to beats
     midi = MidiFile(hummed_file)
