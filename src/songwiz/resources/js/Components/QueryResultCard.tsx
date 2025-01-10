@@ -86,9 +86,9 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                 >
                     <div className="flex w-3/4 items-center">
                         <div className="flex items-center">
-                            <p className="flex w-16 flex-1 text-6xl">
-                                {index + 1}
-                            </p>
+                            <div className="min-w-8">
+                                <p className="text-6xl">{index + 1}</p>
+                            </div>
                             <img
                                 src={API_URL + '/fetch/img/' + track.cover_path}
                                 alt={track.name}
@@ -119,7 +119,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) : (
                         <p>Loading MIDI...</p>
                     )}
-                    <p className="max-w-8 overflow-hidden">{track.score}</p>
+                    <p className="">{Number(track.score).toFixed(2)}</p>
                 </div>
             ))}
         </div>
