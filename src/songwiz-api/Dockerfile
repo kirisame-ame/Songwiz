@@ -9,9 +9,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Nginx
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && apt-get update && apt-get install -y \
     nginx \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get install libsndfile1
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
