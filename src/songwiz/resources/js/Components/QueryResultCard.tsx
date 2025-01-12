@@ -117,7 +117,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                     ) : audioFiles[index] ? (
                         <MidiPlayer midiFile={audioFiles[index]} />
                     ) : (
-                        <p>Loading MIDI...</p>
+                        <p>Loading Audio...</p>
                     )}
                     <p className="">{Number(track.score).toFixed(2)}</p>
                 </div>

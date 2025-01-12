@@ -5,10 +5,8 @@ import pickle
 from multiprocessing import Pool, cpu_count
 
 # Direktori untuk menyimpan cache fitur
-FEATURE_CACHE_DIR = "feature_cache"
 
 # Pastikan folder cache ada
-os.makedirs(FEATURE_CACHE_DIR, exist_ok=True)
 
 def get_feature_cache_path(file_path,cache_dir):
     """Generate path file cache berdasarkan nama file audio tanpa hash."""
@@ -43,10 +41,10 @@ def extract_features(file_path,cache_dir):
         # Ekstrak fitur jika tidak ada di cache
         y, sr = librosa.load(file_path, sr=22050, mono=True)
         y_harmonic, y_percussive = librosa.effects.hpss(y)
-        chroma_harmonic = librosa.feature.chroma_stft(y=y_harmonic, sr=sr)
-        chroma_mean = np.mean(chroma_harmonic, axis=1)
-        chroma_std = np.std(chroma_harmonic, axis=1)
-        features = np.concatenate((chroma_mean, chroma_std))
+        mfcc = librosa.feature.mfcc(y=y_harmonic, sr=sr, n_mfcc=12)
+        mfcc_mean = np.mean(mfcc, axis=1)
+        mfcc_std = np.std(mfcc, axis=1)
+        features = np.concatenate((mfcc_mean, mfcc_std))
         
         # Simpan fitur ke cache
         save_features_to_cache(file_path, features,cache_dir)
@@ -55,7 +53,11 @@ def extract_features(file_path,cache_dir):
         print(f"Error extracting features from {file_path}: {e}")
         return None
 
-def cache_audio_features(audio_dir,cache_dir):
+def extract_features_worker(args):
+    file_path, cache_dir = args
+    return extract_features(file_path, cache_dir)
+
+def cache_audio_features(audio_dir, cache_dir):
     """
     Proses caching fitur untuk semua file di direktori audio.
     """
@@ -66,14 +68,11 @@ def cache_audio_features(audio_dir,cache_dir):
     ]
     
     print(f"Caching fitur untuk {len(audio_files)} file audio...")
-    for file in audio_files:
-        cache_path = get_feature_cache_path(file,cache_dir)
-        if os.path.exists(cache_path):
-            print(f"Cache sudah ada untuk {file}. Melewati...")
-            continue
-        extract_features(file,cache_dir)
+    pool = Pool(cpu_count())
+    pool.map(extract_features_worker, [(file, cache_dir) for file in audio_files])
+    pool.close()
+    pool.join()
     print("Proses caching selesai.")
-
 
 def dtw_distance(reference_features, target_features):
     """

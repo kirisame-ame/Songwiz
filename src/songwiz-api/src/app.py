@@ -55,9 +55,6 @@ def fetch(folder, file):
    else:
       return {"error": "Invalid folder"}, 400
 
-@app.route("/upload")
-def upload():
-    return render_template("upl.html")
 # Upload a .zip file and extract its contents
 @app.route('/upload', methods=['POST'])
 def initiate_upload():
