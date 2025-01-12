@@ -72,7 +72,7 @@ def cache_all_features(midi_database_dir, window_size=20, stride=4, cache_dir="f
         file_path for file_path, cache_path in cache_paths.items()
         if not os.path.exists(cache_path)
     ]
-
+    print(files_to_process)
     # Proses hanya file yang belum memiliki cache
     if files_to_process:
         with Pool(processes=cpu_count()) as pool:
