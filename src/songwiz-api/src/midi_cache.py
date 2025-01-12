@@ -76,10 +76,14 @@ def cache_all_features(midi_database_dir, window_size=20, stride=4, cache_dir="f
     # Proses hanya file yang belum memiliki cache
     if files_to_process:
         print(f"Caching fitur untuk {len(files_to_process)} file MIDI...")
-        with Pool(processes=cpu_count()) as pool:
-            # Bungkus setiap file dengan argumen tambahan
-            args_list = [(file, window_size, stride, cache_dir) for file in files_to_process]
-            print(args_list)
-            pool.map(cache_single_file, args_list)
+        args_list = [(file, window_size, stride, cache_dir) for file in files_to_process]
+        print(args_list)
+        for args in args_list:
+            cache_single_file(args)
+        # with Pool(processes=cpu_count()) as pool:
+        #     # Bungkus setiap file dengan argumen tambahan
+        #     args_list = [(file, window_size, stride, cache_dir) for file in files_to_process]
+        #     print(args_list)
+        #     pool.map(cache_single_file, args_list)
     else:
         print("Semua fitur sudah tercache.")
