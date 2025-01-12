@@ -26,6 +26,7 @@ def save_features_to_cache(file_path, features, cache_dir):
     Menyimpan fitur ke file cache.
     """
     cache_path = get_feature_cache_path(file_path, cache_dir)
+    print(cache_path)
     with open(cache_path, "wb") as f:
         pickle.dump(features, f)
 

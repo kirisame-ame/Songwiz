@@ -143,6 +143,7 @@ def process_single_midi(args,cache_dir):
     """
     file_path, window_size, stride = args
     midi_file = os.path.basename(file_path)
+    print(f"Processing {midi_file}...")
 
     # Cek cache terlebih dahulu
     cached_features = cache.load_features_from_cache(file_path,cache_dir)

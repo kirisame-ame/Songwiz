@@ -86,7 +86,7 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                 >
                     <div className="flex w-3/4 items-center">
                         <div className="flex items-center">
-                            <div className="min-w-8">
+                            <div className="min-w-12">
                                 <p className="text-6xl">{index + 1}</p>
                             </div>
                             <img
