@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && apt-get install -y \
     nginx \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get install ffmpeg
+    && apt-get install -y \
+    ffmpeg
 
 # Copy Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
