@@ -51,9 +51,11 @@ def cache_single_file(args):
     Argumen berupa tuple (file_path, window_size, stride, cache_dir).
     """
     file_path, window_size, stride, cache_dir = args
+    print(window_size)
+    print(stride)
     return music.process_single_midi((file_path, window_size, stride),cache_dir)
 
-def cache_all_features(midi_database_dir, window_size=20, stride=4, cache_dir="feature_cache"):
+def cache_all_features(midi_database_dir,cache_dir, window_size=20, stride=4):
     """
     Cache semua fitur dari file MIDI di direktori.
     """

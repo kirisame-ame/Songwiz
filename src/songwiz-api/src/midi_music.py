@@ -169,15 +169,15 @@ def process_single_midi(args,cache_dir):
         if ticks_per_beat <= 0:
             print(f"Invalid ticks_per_beat in {midi_file}. Skipping file.")
             return None, None
-        print(f"Ticks per beat: {ticks_per_beat}")
+        print(f"Ticks per beat:")
         onset_times_beats = [t / ticks_per_beat for t in onset_times]
 
         # Normalize pitch and time intervals
         print("Normalizing pitch and time intervals...")
         normalized_pitches = normalize_pitch(pitches)
-        print(f"Pitch sequence: {normalized_pitches}")
+        print(f"Pitch sequence:")
         normalized_time_intervals = normalize_time_intervals(onset_times_beats)
-        print(f"Time intervals: {normalized_time_intervals}")
+        print(f"Time intervals:")
         if not normalized_time_intervals:
             print(f"Warning: Not enough data in {midi_file} for time interval computation. Skipping file.")
             return None, None
