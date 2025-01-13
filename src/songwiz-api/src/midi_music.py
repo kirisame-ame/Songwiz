@@ -142,8 +142,9 @@ def process_single_midi(args,cache_dir):
     Process a single MIDI file and extract features, with caching.
     """
     file_path, window_size, stride = args
-    window_size = int(window_size)
-    stride = int(stride)
+    print(window_size)
+    print(stride)
+    print(cache_dir)
     midi_file = os.path.basename(file_path)
     print(f"Processing {midi_file}...")
 
