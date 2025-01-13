@@ -142,6 +142,8 @@ def process_single_midi(args,cache_dir):
     Process a single MIDI file and extract features, with caching.
     """
     file_path, window_size, stride = args
+    window_size = int(window_size)
+    stride = int(stride)
     midi_file = os.path.basename(file_path)
     print(f"Processing {midi_file}...")
 
@@ -166,18 +168,21 @@ def process_single_midi(args,cache_dir):
         if ticks_per_beat <= 0:
             print(f"Invalid ticks_per_beat in {midi_file}. Skipping file.")
             return None, None
-
+        print(f"Ticks per beat: {ticks_per_beat}")
         onset_times_beats = [t / ticks_per_beat for t in onset_times]
 
         # Normalize pitch and time intervals
+        print("Normalizing pitch and time intervals...")
         normalized_pitches = normalize_pitch(pitches)
+        print(f"Pitch sequence: {normalized_pitches}")
         normalized_time_intervals = normalize_time_intervals(onset_times_beats)
-
+        print(f"Time intervals: {normalized_time_intervals}")
         if not normalized_time_intervals:
             print(f"Warning: Not enough data in {midi_file} for time interval computation. Skipping file.")
             return None, None
 
         # Create sliding windows
+        print("Creating sliding windows...")
         windows = sliding_window(normalized_pitches, normalized_time_intervals, window_size, stride)
         if not windows:
             print(f"Warning: No valid windows generated for {midi_file}. Skipping file.")

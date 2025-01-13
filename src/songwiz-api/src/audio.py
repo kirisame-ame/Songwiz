@@ -53,11 +53,7 @@ def extract_features(file_path,cache_dir):
         print(f"Error extracting features from {file_path}: {e}")
         return None
 
-def extract_features_worker(args):
-    file_path, cache_dir = args
-    return extract_features(file_path, cache_dir)
-
-def cache_audio_features(audio_dir, cache_dir):
+def cache_audio_features(audio_dir,cache_dir):
     """
     Proses caching fitur untuk semua file di direktori audio.
     """
@@ -68,11 +64,14 @@ def cache_audio_features(audio_dir, cache_dir):
     ]
     
     print(f"Caching fitur untuk {len(audio_files)} file audio...")
-    pool = Pool(cpu_count())
-    pool.map(extract_features_worker, [(file, cache_dir) for file in audio_files])
-    pool.close()
-    pool.join()
+    for file in audio_files:
+        cache_path = get_feature_cache_path(file,cache_dir)
+        if os.path.exists(cache_path):
+            print(f"Cache sudah ada untuk {file}. Melewati...")
+            continue
+        extract_features(file,cache_dir)
     print("Proses caching selesai.")
+
 
 def dtw_distance(reference_features, target_features):
     """
