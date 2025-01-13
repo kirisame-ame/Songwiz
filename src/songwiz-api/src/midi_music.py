@@ -148,9 +148,11 @@ def process_single_midi(args,cache_dir):
     # Cek cache terlebih dahulu
     cached_features = cache.load_features_from_cache(file_path,cache_dir)
     if cached_features is not None:
+        print(f"Features found in cache for {midi_file}.")
         return midi_file, cached_features
 
     try:
+        print(f"Extracting features from {midi_file}...")
         # Ekstrak fitur jika tidak ada di cache
         pitches, onset_times = extract_melody_from_midi(file_path)
 
@@ -192,6 +194,7 @@ def process_single_midi(args,cache_dir):
         return midi_file, np.array(features_list)
 
     except Exception as e:
+        print(f"Error processing {midi_file}: {e}")
         return None, None
 
 #8 PROSES SEMUA MIDI DI CACHE

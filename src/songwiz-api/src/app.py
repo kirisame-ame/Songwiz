@@ -108,8 +108,8 @@ def process_upload():
       # Process the uploaded files
       # midi caching
       midi_cache.cache_all_features(MID_FOLDER, MIDI_CACHE_FOLDER)
-      # audio caching
-      audio.cache_audio_features(AUDIO_FOLDER,AUDIO_CACHE_FOLDER)
+      # # audio caching
+      # audio.cache_audio_features(AUDIO_FOLDER,AUDIO_CACHE_FOLDER)
       return jsonify({'success': 'Files processed successfully'}), 200
    except Exception as e:
       return jsonify({'error': str(e)}), 400
