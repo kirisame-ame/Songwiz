@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::post('/upload-json', [TrackController::class, 'store'])->name('tracks.store');
+Route::get('/download-json', [TrackController::class, 'download'])->name('tracks.download');
 Route::post('/cache', [ZipUploadController::class, 'cache'])->name('cache');
 Route::post('/image-query', [TrackController::class, 'extractImageFeatures'])->name('image-query');
 Route::post('/midi-query', [TrackController::class, 'extractMidiFeatures'])->name('midi-query');

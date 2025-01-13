@@ -36,6 +36,21 @@ function MapperUpload() {
             }
         }
     }
+    const handleDownloadMapper = async () => {
+        try {
+            const response = await axios.get('/download-json', {
+                responseType: 'blob',
+            })
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', 'mapper.json')
+            document.body.appendChild(link)
+            link.click()
+        } catch (err) {
+            console.error('Download failed', err)
+        }
+    }
     const toggleModalMinimize = () => {
         setIsModalMinimized(!isModalMinimized)
     }
@@ -65,6 +80,7 @@ function MapperUpload() {
             >
                 Load Mapper
             </button>
+            <button onClick={handleDownloadMapper}>Download Mapper</button>
             {(isUploading || isUploadComplete) && (
                 <div
                     className={`fixed ${

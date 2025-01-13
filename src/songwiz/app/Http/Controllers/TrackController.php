@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Track;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -176,6 +177,15 @@ class TrackController extends Controller
             ];
         }
         Track::insert($records);
-
+    }
+    public function download(){
+        $mapper = DB::table('tracks')->select('name','artist','cover_path','audio_path','audio_type')->get();
+        $json = json_encode($mapper, JSON_PRETTY_PRINT);
+        $filename = 'mapper.json';
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ];
+        return response($json, 200, $headers);
     }
 }
