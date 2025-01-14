@@ -243,6 +243,7 @@ def audio_query():
 
    try:  
       ranked_results = audio.rank_audio_files_dtw(file_path,AUDIO_CACHE_FOLDER)
+      print(ranked_results)
       return jsonify(ranked_results), 200
    except Exception as e:
       return jsonify({'error': str(e)}), 400
@@ -255,7 +256,8 @@ def audio_query():
 def cache_audio():
    try:
       cache = audio.load_cache(AUDIO_CACHE_FOLDER)
-      print(jsonify(cache))
+      for key in cache:
+         print(key)
    except Exception as e:
       print(e)
 

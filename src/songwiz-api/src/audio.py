@@ -97,7 +97,7 @@ def rank_audio_files_dtw(reference_file,cache_dir):
         print(f"Calculating DTW distance for {file}")
         if features is not None:
             distance = dtw_distance(reference_features, features)
+            print(f"DTW distance for {file}: {distance}")
             dtw_distances.append((file, distance))
-    ranked_files = sorted(dtw_distances, key=lambda x: x[1])
-
+    ranked_files = dict(sorted(dtw_distances, key=lambda x: x[1],reverse=True))
     return ranked_files
