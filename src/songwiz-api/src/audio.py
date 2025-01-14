@@ -1,6 +1,7 @@
 import os
 import librosa
 import numpy as np
+from scipy.spatial.distance import euclidean
 import pickle
 import time
 
@@ -87,6 +88,7 @@ def rank_audio_files_dtw(reference_file,cache_dir):
     """
     Mengurutkan file audio berdasarkan jarak DTW.
     """
+    start_time = time.time()
     _, reference_features = process_file(reference_file)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
@@ -98,11 +100,14 @@ def rank_audio_files_dtw(reference_file,cache_dir):
     for file, features in cache.items():
         print(f"Calculating DTW distance for {file}")
         if features is not None:
-            distance = dtw_distance(reference_features, features)
+            # distance = dtw_distance(reference_features, features)
+            distance = euclidean(reference_features, features)
             print(f"DTW distance for {file}: {distance}")
             if distance > max_dtw:
                 max_dtw = distance
             dtw_distances.append((file, distance))
     dtw_distances = [(file, 1-distance/max_dtw) for file, distance in dtw_distances]
     ranked_files = sorted(dtw_distances, key=lambda x: x[1],reverse=True)
-    return dict(ranked_files)
+    end_time = time.time()
+    print(f"DTW ranking complete. Time taken: {end_time - start_time:.2f} seconds.")
+    return dict(ranked_files[:5])
