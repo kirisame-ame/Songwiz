@@ -104,5 +104,5 @@ def rank_audio_files_dtw(reference_file,cache_dir):
                 max_dtw = distance
             dtw_distances.append((file, distance))
     dtw_distances = [(file, 1-distance/max_dtw) for file, distance in dtw_distances]
-    ranked_files = dict(sorted(dtw_distances, key=lambda x: x[1],reverse=True))
-    return ranked_files
+    ranked_files = sorted(dtw_distances, key=lambda x: x[1],reverse=True)
+    return dict(ranked_files)

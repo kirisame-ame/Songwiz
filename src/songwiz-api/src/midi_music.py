@@ -298,5 +298,5 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_d
         similarity_scores[midi_file] = str(max_score)
 
     # Sort results based on similarity scores
-    ranked_results = dict(sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True))
-    return ranked_results
+    ranked_results = sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True)
+    return dict(ranked_results)
