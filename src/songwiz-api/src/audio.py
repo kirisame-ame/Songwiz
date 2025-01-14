@@ -52,16 +52,9 @@ def cache_audio_features(audio_dir, cache_dir):
 
     cache = load_cache(cache_dir)
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
-    # print(f"Main PID: {os.getpid()} - Caching features for {len(audio_files)} audio files...")
 
-    # start_time = time.time()
+    start_time = time.time()
 
-    # try:
-    #     with get_context("spawn").Pool(initializer=initializer) as pool:
-    #         results = pool.map(process_file, audio_files)
-    # except Exception as e:
-    #     print(f"Error processing audio files: {e}")
-    #     return
     for file in audio_files:
         _,cache[file] = process_file(file)
 
@@ -89,7 +82,7 @@ def dtw_distance(reference_features, target_features):
 
     
 
-def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
+def rank_audio_files_dtw(reference_file,cache_dir):
     """
     Mengurutkan file audio berdasarkan jarak DTW.
     """
@@ -98,23 +91,13 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
         print("Gagal mengekstrak fitur dari file referensi.")
         return []
     
-    audio_files = [
-        os.path.join(audio_dir, f)
-        for f in os.listdir(audio_dir)
-        if f.lower().endswith(('.wav', '.mp3'))
-    ]
-    
     dtw_distances = []
     cache = load_cache(cache_dir)
-    for file in audio_files:
-        target_features = compute_audio_features(file, cache)
-        if target_features is not None:
-            distance = dtw_distance(reference_features, target_features)
+    for file, features in cache.items():
+        print(f"Calculating DTW distance for {file}")
+        if features is not None:
+            distance = dtw_distance(reference_features, features)
             dtw_distances.append((file, distance))
-        else:
-            print(f"Error processing file: {file}")
-            dtw_distances.append(None)
-    
-    results = [res for res in dtw_distances if res is not None]
-    ranked_files = sorted(results, key=lambda x: x[1])
+    ranked_files = sorted(dtw_distances, key=lambda x: x[1])
+
     return ranked_files

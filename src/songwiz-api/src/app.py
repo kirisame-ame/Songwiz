@@ -8,7 +8,6 @@ import src.image_dataset_processor as img_processor
 import src.midi_cache as midi_cache
 import src.midi_music as midi_music
 import src.audio as audio
-import src.multitest as multi
 
 app = Flask(__name__)
 CORS(app)
@@ -237,14 +236,13 @@ def audio_query():
    file_path = os.path.join(TEMP_FOLDER, original_filename)
    uploaded_file.save(file_path)
    print(original_filename)
-   # Check if it's an image file
    if not original_filename.lower().endswith(('.mp3', '.wav', '.m4a')):
       if os.path.exists(file_path):
          os.remove(file_path)
       return jsonify({'error': 'Uploaded file is not an audio file'}), 400
 
    try:  
-      ranked_results = audio.rank_audio_files_dtw(file_path, AUDIO_FOLDER,AUDIO_CACHE_FOLDER)
+      ranked_results = audio.rank_audio_files_dtw(file_path,AUDIO_CACHE_FOLDER)
       return jsonify(ranked_results), 200
    except Exception as e:
       return jsonify({'error': str(e)}), 400
@@ -253,10 +251,11 @@ def audio_query():
       if os.path.exists(file_path):
          os.remove(file_path)
 
-@app.route("/multitest")
-def multitest():
+@app.route("/cached-audio")
+def cache_audio():
    try:
-      multi.main()
+      cache = audio.load_cache(AUDIO_CACHE_FOLDER)
+      print(jsonify(cache))
    except Exception as e:
       print(e)
 
