@@ -220,7 +220,11 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                 />
 
                 {/* Display selected file name */}
-                {fileName && <p>Selected File: {fileName}</p>}
+                {fileName && (
+                    <div className='max-w-sm'>
+                        <p>Selected File: {fileName}</p>
+                    </div>
+                    )}
 
                 {/* Custom button to trigger file input */}
                 <button
