@@ -93,9 +93,11 @@ def initiate_upload():
                      f" expected {request.form['dztotalfilesize']} ")
          return make_response(('Size mismatch', 500))
       else:
-         extract_zip_by_type(save_path)
-         os.remove(save_path)
-         log.info(f'File {file.filename} has been uploaded successfully')
+         try:
+            extract_zip_by_type(save_path)
+         finally:
+            os.remove(save_path)
+            log.info(f'File {file.filename} has been uploaded successfully')
    else:
       log.debug(f'Chunk {current_chunk + 1} of {total_chunks} '
                f'for file {file.filename} complete')

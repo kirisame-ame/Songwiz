@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import time
 
-from multiprocessing import Pool, cpu_count, set_start_method
+from multiprocessing import Pool, cpu_count, get_context
 
 # Direktori untuk menyimpan cache fitur
 
@@ -45,14 +45,13 @@ def process_file(file):
 
 def cache_audio_features(audio_dir, cache_dir):
     """Cache audio features for all files in the audio directory using multiprocessing."""
-    set_start_method('fork')
     cache = load_cache(cache_dir)
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
     print(f"Caching features for {len(audio_files)} audio files...")
     
     start_time = time.time()
     try:
-        with Pool() as pool:
+        with get_context("spawn").Pool() as pool:
             results = pool.map(process_file, audio_files)
     except Exception as e:
         print(f"Error processing audio files: {e}")
@@ -88,7 +87,6 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
     """
     Mengurutkan file audio berdasarkan jarak DTW.
     """
-    set_start_method('fork')
     _, reference_features = process_file(reference_file)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
@@ -100,7 +98,7 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
         if f.lower().endswith(('.wav', '.mp3'))
     ]
     
-    pool = Pool(cpu_count())
+    pool = get_context("spawn").Pool(cpu_count())
     dtw_distances = pool.starmap(
         dtw_distance, [(reference_features, compute_audio_features(f, cache_dir)) for f in audio_files]
     )
