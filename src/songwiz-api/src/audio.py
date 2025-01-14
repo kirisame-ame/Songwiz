@@ -31,9 +31,10 @@ def compute_audio_features(file_path, cache):
     else:   
         print("features not found in cache")
 
-def process_file(file):
+def process_file(file,audio_dir):
     """Process a single audio file to extract features."""
-    print(f"[Worker PID {os.getpid()}] Processing file: {file}")    
+    print(f"[Worker PID {os.getpid()}] Processing file: {file}") 
+    file = os.path.join(audio_dir, file)   
     try:
         y, sr = librosa.load(file, sr=None)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
@@ -51,12 +52,12 @@ def cache_audio_features(audio_dir, cache_dir):
     print(f"Main PID: {os.getpid()} - Starting audio feature caching.")
 
     cache = load_cache(cache_dir)
-    audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
+    audio_files = [f for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
 
     start_time = time.time()
 
     for file in audio_files:
-        _,cache[file] = process_file(file)
+        _,cache[file] = process_file(file,audio_dir)
 
     save_cache(cache, cache_dir)
 
@@ -92,12 +93,16 @@ def rank_audio_files_dtw(reference_file,cache_dir):
         return []
     
     dtw_distances = []
+    max_dtw = 0
     cache = load_cache(cache_dir)
     for file, features in cache.items():
         print(f"Calculating DTW distance for {file}")
         if features is not None:
             distance = dtw_distance(reference_features, features)
             print(f"DTW distance for {file}: {distance}")
+            if distance > max_dtw:
+                max_dtw = distance
             dtw_distances.append((file, distance))
+    dtw_distances = [(file, 1-distance/max_dtw) for file, distance in dtw_distances]
     ranked_files = dict(sorted(dtw_distances, key=lambda x: x[1],reverse=True))
     return ranked_files
