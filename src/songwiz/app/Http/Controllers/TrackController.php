@@ -73,7 +73,6 @@ class TrackController extends Controller
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
             $similarMidiData = [];
             foreach($result as $key=>$value){
-                dump($key);
                 $metadata = Track::where('audio_path', $key)->first();
                 if ($metadata) {
                     $similarMidiData[] = [
