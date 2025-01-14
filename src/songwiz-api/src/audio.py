@@ -4,9 +4,10 @@ import numpy as np
 import pickle
 import time
 
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, set_start_method
 
 # Direktori untuk menyimpan cache fitur
+
 CACHE_FILE_NAME = 'audio_features_cache.pkl'
 
 def load_cache(cache_dir):
@@ -32,13 +33,19 @@ def compute_audio_features(file_path, cache):
 
 def process_file(file):
     """Process a single audio file to extract features."""
-    y, sr = librosa.load(file, sr=None)
-    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
-    mfcc_mean = np.mean(mfcc, axis=1)
-    return file, mfcc_mean
+    print(f"Processing file: {file}")
+    try:
+        y, sr = librosa.load(file, sr=None)
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
+        mfcc_mean = np.mean(mfcc, axis=1)
+        return file, mfcc_mean
+    except Exception as e:
+        print(f"Error processing file: {file}, {e}")
+        return file, None
 
 def cache_audio_features(audio_dir, cache_dir):
     """Cache audio features for all files in the audio directory using multiprocessing."""
+    set_start_method('fork')
     cache = load_cache(cache_dir)
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
     print(f"Caching features for {len(audio_files)} audio files...")
@@ -78,6 +85,7 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
     """
     Mengurutkan file audio berdasarkan jarak DTW.
     """
+    set_start_method('fork')
     _, reference_features = process_file(reference_file)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
