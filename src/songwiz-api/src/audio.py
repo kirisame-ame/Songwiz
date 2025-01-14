@@ -43,6 +43,9 @@ def process_file(file):
         print(f"Error processing file: {file}, {e}")
         return file, None
 
+def initializer():
+        print(f"Worker PID {os.getpid()} initialized.")
+        
 def cache_audio_features(audio_dir, cache_dir):
     """Cache audio features for all files in the audio directory using multiprocessing."""
     print(f"Main PID: {os.getpid()} - Starting audio feature caching.")
@@ -52,9 +55,6 @@ def cache_audio_features(audio_dir, cache_dir):
     print(f"Main PID: {os.getpid()} - Caching features for {len(audio_files)} audio files...")
 
     start_time = time.time()
-
-    def initializer():
-        print(f"Worker PID {os.getpid()} initialized.")
 
     try:
         with get_context("spawn").Pool(initializer=initializer) as pool:
