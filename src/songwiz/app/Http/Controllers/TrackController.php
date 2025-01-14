@@ -33,9 +33,8 @@ class TrackController extends Controller
         if ($response->getStatusCode() === 200) {
             $output = $response->getBody()->getContents();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
-            $result2 = json_decode($result['similar_midi'], true, 512, JSON_THROW_ON_ERROR);
             $similarMidiData = [];
-            foreach($result2 as $key=>$value){
+            foreach($result as $key=>$value){
                 $metadata = Track::where('audio_path', $key)->first();
                 if ($metadata) {
                     $similarMidiData[] = [
@@ -72,9 +71,8 @@ class TrackController extends Controller
         if ($response->getStatusCode() === 200) {
             $output = $response->getBody()->getContents();
             $result = json_decode($output, true, 512, JSON_THROW_ON_ERROR);
-            $result2 = json_decode($result['similar_audio'], true, 512, JSON_THROW_ON_ERROR);
             $similarMidiData = [];
-            foreach($result2 as $key=>$value){
+            foreach($result as $key=>$value){
                 $metadata = Track::where('audio_path', $key)->first();
                 if ($metadata) {
                     $similarMidiData[] = [
