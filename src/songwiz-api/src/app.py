@@ -10,6 +10,7 @@ import src.midi_music as midi_music
 import src.audio as audio
 
 app = Flask(__name__)
+app.json.sort_keys = False
 CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
