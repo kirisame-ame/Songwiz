@@ -93,7 +93,7 @@ def rank_audio_files_dtw(reference_file,cache_dir):
         return []
     
     dtw_distances = []
-    max_dtw = 0
+    max_dtw = 1
     cache = load_cache(cache_dir)
     for file, features in cache.items():
         print(f"Calculating DTW distance for {file}")
