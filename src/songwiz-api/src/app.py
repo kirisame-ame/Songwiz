@@ -8,6 +8,7 @@ import src.image_dataset_processor as img_processor
 import src.midi_cache as midi_cache
 import src.midi_music as midi_music
 import src.audio as audio
+import src.multitest as multi
 
 app = Flask(__name__)
 CORS(app)
@@ -251,6 +252,13 @@ def audio_query():
       # Clean up the uploaded file
       if os.path.exists(file_path):
          os.remove(file_path)
+
+@app.route("/multitest")
+def multitest():
+   try:
+      multi.main()
+   except Exception as e:
+      print(e)
 
 @app.route("/")
 def hello_world():

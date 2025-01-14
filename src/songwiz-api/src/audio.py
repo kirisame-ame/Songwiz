@@ -45,26 +45,25 @@ def process_file(file):
 
 def initializer():
         print(f"Worker PID {os.getpid()} initialized.")
-        
+
 def cache_audio_features(audio_dir, cache_dir):
     """Cache audio features for all files in the audio directory using multiprocessing."""
     print(f"Main PID: {os.getpid()} - Starting audio feature caching.")
 
     cache = load_cache(cache_dir)
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
-    print(f"Main PID: {os.getpid()} - Caching features for {len(audio_files)} audio files...")
+    # print(f"Main PID: {os.getpid()} - Caching features for {len(audio_files)} audio files...")
 
-    start_time = time.time()
+    # start_time = time.time()
 
-    try:
-        with get_context("spawn").Pool(initializer=initializer) as pool:
-            results = pool.map(process_file, audio_files)
-    except Exception as e:
-        print(f"Error processing audio files: {e}")
-        return
-
-    for file, mfcc_mean in results:
-        cache[file] = mfcc_mean
+    # try:
+    #     with get_context("spawn").Pool(initializer=initializer) as pool:
+    #         results = pool.map(process_file, audio_files)
+    # except Exception as e:
+    #     print(f"Error processing audio files: {e}")
+    #     return
+    for file in audio_files:
+        _,cache[file] = process_file(file)
 
     save_cache(cache, cache_dir)
 
@@ -105,10 +104,16 @@ def rank_audio_files_dtw(reference_file, audio_dir,cache_dir):
         if f.lower().endswith(('.wav', '.mp3'))
     ]
     
-    pool = get_context("spawn").Pool(cpu_count())
-    dtw_distances = pool.starmap(
-        dtw_distance, [(reference_features, compute_audio_features(f, cache_dir)) for f in audio_files]
-    )
+    dtw_distances = []
+    cache = load_cache(cache_dir)
+    for file in audio_files:
+        target_features = compute_audio_features(file, cache)
+        if target_features is not None:
+            distance = dtw_distance(reference_features, target_features)
+            dtw_distances.append((file, distance))
+        else:
+            print(f"Error processing file: {file}")
+            dtw_distances.append(None)
     
     results = [res for res in dtw_distances if res is not None]
     ranked_files = sorted(results, key=lambda x: x[1])

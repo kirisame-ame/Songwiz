@@ -5,7 +5,7 @@ def worker_function(x):
     print(f"Worker PID {os.getpid()} - Processing {x}")
     return x * x
 
-if __name__ == "__main__":
+def main():
     print(f"Main PID: {os.getpid()} - Starting.")
     try:
         with get_context("spawn").Pool() as pool:
