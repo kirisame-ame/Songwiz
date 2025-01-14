@@ -7,17 +7,15 @@ const FileUploader = () => {
     const dropzoneRef = useRef<HTMLFormElement>(null)
 
     useEffect(() => {
-        // Configure Dropzone
         const dz = new Dropzone(dropzoneRef.current!, {
-            url: API_URL + '/upload', // Your Flask endpoint
+            url: API_URL + '/upload',
             paramName: 'file',
             chunking: true,
             forceChunking: true,
-            maxFilesize: 10250, // in MB
-            chunkSize: 1000000, // in bytes (1 MB chunks)
+            maxFilesize: 10250,
+            chunkSize: 1000000,
         })
 
-        // Cleanup Dropzone instance on component unmount
         return () => {
             dz.destroy()
         }
