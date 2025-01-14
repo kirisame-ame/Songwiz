@@ -31,10 +31,9 @@ def compute_audio_features(file_path, cache):
     else:   
         print("features not found in cache")
 
-def process_file(file,audio_dir):
+def process_file(file):
     """Process a single audio file to extract features."""
     print(f"[Worker PID {os.getpid()}] Processing file: {file}") 
-    file = os.path.join(audio_dir, file)   
     try:
         y, sr = librosa.load(file, sr=None)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
@@ -57,7 +56,8 @@ def cache_audio_features(audio_dir, cache_dir):
     start_time = time.time()
 
     for file in audio_files:
-        _,cache[file] = process_file(file,audio_dir)
+        filepath = os.path.join(audio_dir, file)
+        _,cache[file] = process_file(filepath)
 
     save_cache(cache, cache_dir)
 
