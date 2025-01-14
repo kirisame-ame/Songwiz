@@ -211,7 +211,7 @@ def midi_query():
       stride = 8      
       database_features = midi_music.process_midi_database(MID_FOLDER, window_size,stride,MIDI_CACHE_FOLDER)
       ranked_results = midi_music.rank_best_match(file_path, database_features, window_size, stride, cache_dir=MIDI_CACHE_FOLDER)
-      return jsonify(ranked_results), 200
+      return jsonify({'success':'Midi Processed','similar_midi':ranked_results}), 200
    except Exception as e:
       return jsonify({'error': str(e)}), 400
    finally:
@@ -244,7 +244,7 @@ def audio_query():
    try:  
       ranked_results = audio.rank_audio_files_dtw(file_path,AUDIO_CACHE_FOLDER)
       print(ranked_results)
-      return jsonify(ranked_results), 200
+      return jsonify({'success':'Audio Processed','similar_audio':ranked_results}), 200
    except Exception as e:
       return jsonify({'error': str(e)}), 400
    finally:
