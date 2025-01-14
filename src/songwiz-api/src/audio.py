@@ -33,7 +33,7 @@ def compute_audio_features(file_path, cache):
 
 def process_file(file):
     """Process a single audio file to extract features."""
-    print(f"Processing file: {file}")
+    print(f"[Worker PID {os.getpid()}] Processing file: {file}")    
     try:
         y, sr = librosa.load(file, sr=None)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
@@ -45,26 +45,33 @@ def process_file(file):
 
 def cache_audio_features(audio_dir, cache_dir):
     """Cache audio features for all files in the audio directory using multiprocessing."""
+    print(f"Main PID: {os.getpid()} - Starting audio feature caching.")
+
     cache = load_cache(cache_dir)
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.lower().endswith(('.wav', '.mp3')) and f not in cache]
-    print(f"Caching features for {len(audio_files)} audio files...")
-    
+    print(f"Main PID: {os.getpid()} - Caching features for {len(audio_files)} audio files...")
+
     start_time = time.time()
+
+    def initializer():
+        print(f"Worker PID {os.getpid()} initialized.")
+
     try:
-        with get_context("spawn").Pool() as pool:
+        with get_context("spawn").Pool(initializer=initializer) as pool:
             results = pool.map(process_file, audio_files)
     except Exception as e:
         print(f"Error processing audio files: {e}")
         return
-    
+
     for file, mfcc_mean in results:
         cache[file] = mfcc_mean
-    
-    save_cache(cache,cache_dir)
-    
+
+    save_cache(cache, cache_dir)
+
     end_time = time.time()
     caching_time = end_time - start_time
     print(f"Caching complete. Time taken: {caching_time:.2f} seconds.")
+
 
 
 

@@ -26,5 +26,7 @@ COPY gunicorn /app/gunicorn
 # Expose necessary ports
 EXPOSE 80 5000
 
+ENV PYTHONBUFFERED=1
+
 # Start Nginx and Gunicorn together
 CMD gunicorn --config gunicorn/gunicorn_config.py src.app:app
