@@ -51,9 +51,12 @@ def cache_audio_features(audio_dir, cache_dir):
     print(f"Caching features for {len(audio_files)} audio files...")
     
     start_time = time.time()
-    
-    with Pool() as pool:
-        results = pool.map(process_file, audio_files)
+    try:
+        with Pool() as pool:
+            results = pool.map(process_file, audio_files)
+    except Exception as e:
+        print(f"Error processing audio files: {e}")
+        return
     
     for file, mfcc_mean in results:
         cache[file] = mfcc_mean
