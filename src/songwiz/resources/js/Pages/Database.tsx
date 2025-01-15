@@ -36,7 +36,7 @@ export default function Database() {
         try {
             const response = await axios.get(`/search?query=${query}`)
             setTracks(response.data.data)
-            setCurrentPage(response.data.current_page)
+            setCurrentPage(1)
             setLastPage(response.data.last_page)
         } catch (error) {
             console.error('Error fetching tracks:', error)
