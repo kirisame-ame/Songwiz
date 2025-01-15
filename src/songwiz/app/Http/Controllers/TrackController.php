@@ -133,14 +133,21 @@ class TrackController extends Controller
 
         return response()->json(['error' => 'Failed to extract image features']);
     }
-    public function index()
+    public function index(Request $request)
     {
+        $sorter = $request->input('sort');
         try {
-            $tracks = Track::orderBy('name')->paginate(8);
+            $tracks = Track::orderBy($sorter)->paginate(8);
             return response()->json($tracks);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $tracks = Track::whereRaw('? % audio_path', [$query])->paginate(8);
+        return response()->json($tracks);
     }
     public function store(Request $request):void
     {

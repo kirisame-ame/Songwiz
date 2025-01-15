@@ -15,6 +15,7 @@ Route::get('/', function () {
     ]);
 });
 Route::get('/index',[TrackController::class,'index']);
+Route::get('/search',[TrackController::class,'search']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

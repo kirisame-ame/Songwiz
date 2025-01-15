@@ -3,6 +3,7 @@ import NavLink from '@/Components/NavLink'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import SongCard from '@/Components/SongCard'
+import SearchIcon from '@/svg/SearchIcon'
 
 const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
 // unauthenticated user can access this page
@@ -10,14 +11,30 @@ export default function Database() {
     const [tracks, setTracks] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [lastPage, setLastPage] = useState(1)
+    const [sortOption, setSortOption] = useState('name')
+    const [query, setQuery] = useState('')
 
     useEffect(() => {
-        fetchTracks(currentPage)
-    }, [currentPage])
+        fetchTracks(currentPage, sortOption)
+    }, [currentPage, sortOption])
 
-    const fetchTracks = async (page: number) => {
+    const fetchTracks = async (page: number, sort: string) => {
         try {
-            const response = await axios.get(`/index?page=${page}`)
+            const response = await axios.get(`/index?page=${page}&sort=${sort}`)
+            setTracks(response.data.data)
+            setCurrentPage(response.data.current_page)
+            setLastPage(response.data.last_page)
+        } catch (error) {
+            console.error('Error fetching tracks:', error)
+        }
+    }
+    const handleSearchQuery = async () => {
+        if (query === '') {
+            fetchTracks(currentPage, sortOption)
+            return
+        }
+        try {
+            const response = await axios.get(`/search?query=${query}`)
             setTracks(response.data.data)
             setCurrentPage(response.data.current_page)
             setLastPage(response.data.last_page)
@@ -81,7 +98,35 @@ export default function Database() {
                             </div>
                         </div>
                     </div>
-                    <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="mt-5 flex flex-row items-center">
+                        <input
+                            className="rounded-l-md border-0 bg-gray-50 pr-9 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0 focus:ring-offset-transparent"
+                            type="text"
+                            placeholder="Search title or artist"
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <button
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleSearchQuery()
+                                }
+                            }}
+                            onClick={handleSearchQuery}
+                            className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:bg-gray-50"
+                        >
+                            <SearchIcon />
+                        </button>
+                        <select
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                            className="ml-4 rounded-md border border-gray-300 bg-gray-50"
+                        >
+                            <option value="name">Name</option>
+                            <option value="artist">Artist</option>
+                            <option value="date">Date</option>
+                        </select>
+                    </div>
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
                         {tracks.map((track: any) => (
                             <SongCard
                                 key={track.id}
