@@ -243,7 +243,7 @@ def audio_query():
       return jsonify({'error': 'Uploaded file is not an audio file'}), 400
 
    try:  
-      ranked_results = audio.rank_audio_files_dtw(file_path,AUDIO_CACHE_FOLDER)
+      ranked_results = audio.rank_audio_files(file_path,AUDIO_CACHE_FOLDER)
       print(ranked_results)
       return jsonify(ranked_results), 200
    except Exception as e:

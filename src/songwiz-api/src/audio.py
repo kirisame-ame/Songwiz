@@ -5,8 +5,6 @@ from scipy.spatial.distance import euclidean
 import pickle
 import time
 
-from multiprocessing import Pool, cpu_count, get_context
-
 # Direktori untuk menyimpan cache fitur
 
 CACHE_FILE_NAME = 'audio_features_cache.pkl'
@@ -66,48 +64,26 @@ def cache_audio_features(audio_dir, cache_dir):
     caching_time = end_time - start_time
     print(f"Caching complete. Time taken: {caching_time:.2f} seconds.")
 
-
-
-
-def dtw_distance(reference_features, target_features):
-    """
-    Menghitung jarak DTW antara dua vektor fitur.
-    """
-    try:
-        ref = reference_features.reshape(-1, 1)
-        tgt = target_features.reshape(-1, 1)
-        distance, _ = librosa.sequence.dtw(X=ref, Y=tgt, metric='euclidean')
-        return distance[-1, -1]
-    except Exception as e:
-        print(f"Error calculating DTW distance: {e}")
-        return float('inf')
-
-    
-
-def rank_audio_files_dtw(reference_file,cache_dir):
-    """
-    Mengurutkan file audio berdasarkan jarak DTW.
-    """
+def rank_audio_files(reference_file,cache_dir):
     start_time = time.time()
     _, reference_features = process_file(reference_file)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
         return []
     
-    dtw_distances = []
-    max_dtw = 1
+    distances = []
+    max_distance = 1
     cache = load_cache(cache_dir)
     for file, features in cache.items():
-        print(f"Calculating DTW distance for {file}")
+        print(f"Calculating distance for {file}")
         if features is not None:
-            # distance = dtw_distance(reference_features, features)
             distance = euclidean(reference_features, features)
-            print(f"DTW distance for {file}: {distance}")
-            if distance > max_dtw:
-                max_dtw = distance
-            dtw_distances.append((file, distance))
-    dtw_distances = [(file, 1-distance/max_dtw) for file, distance in dtw_distances]
-    ranked_files = sorted(dtw_distances, key=lambda x: x[1],reverse=True)
+            print(f"distance for {file}: {distance}")
+            if distance > max_distance:
+                max_distance = distance
+            distances.append((file, distance))
+    distances = [(file, 1-distance/max_distance) for file, distance in distances]
+    ranked_files = sorted(distances, key=lambda x: x[1],reverse=True)
     end_time = time.time()
-    print(f"DTW ranking complete. Time taken: {end_time - start_time:.2f} seconds.")
+    print(f"ranking complete. Time taken: {end_time - start_time:.2f} seconds.")
     return dict(ranked_files[:5])
