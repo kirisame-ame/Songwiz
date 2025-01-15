@@ -144,11 +144,18 @@ class TrackController extends Controller
         }
     }
     public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $tracks = Track::whereRaw('? % audio_path', [$query])->paginate(8);
-        return response()->json($tracks);
-    }
+{
+    $query = $request->input('query');
+
+    // Perform the fuzzy search, ordering by similarity
+    $tracks = Track::select('*')
+        ->selectRaw('? % audio_path AS similarity', [$query])
+        ->orderByRaw('similarity DESC')
+        ->paginate(8);
+
+    return response()->json($tracks);
+}
+
     public function store(Request $request):void
     {
         $validated = $request->validate([
