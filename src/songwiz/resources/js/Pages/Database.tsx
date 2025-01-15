@@ -103,16 +103,16 @@ export default function Database() {
                             className="rounded-l-md border-0 bg-gray-50 pr-9 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0 focus:ring-offset-transparent"
                             type="text"
                             placeholder="Search title or artist"
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
-                        <button
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleSearchQuery()
                                 }
                             }}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <button
                             onClick={handleSearchQuery}
-                            className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:bg-gray-50"
+                            className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:ring-1"
                         >
                             <SearchIcon />
                         </button>

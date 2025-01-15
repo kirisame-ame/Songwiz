@@ -144,17 +144,16 @@ class TrackController extends Controller
         }
     }
     public function search(Request $request)
-{
-    $query = $request->input('query');
+    {
+        $query = $request->input('query');
 
-    // Perform the fuzzy search, ordering by similarity
-    $tracks = Track::select('*')
-        ->selectRaw('? % audio_path AS similarity', [$query])
-        ->orderByRaw('similarity DESC')
-        ->paginate(8);
-
-    return response()->json($tracks);
-}
+        // Perform the fuzzy search, ordering by similarity
+        $tracks = Track::select('*')
+            ->where('audio_path', 'ILIKE', "%$query%")
+            ->orderByRaw("similarity(audio_path, ?) DESC", [$query])
+            ->paginate(8);
+        return response()->json($tracks);
+    }
 
     public function store(Request $request):void
     {
