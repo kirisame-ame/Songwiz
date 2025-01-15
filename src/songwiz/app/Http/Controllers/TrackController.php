@@ -49,6 +49,7 @@ class TrackController extends Controller
             }
             return response()->json(['similar_midi' => $similarMidiData]);
         }
+        return response()->json(['error' => 'Failed to extract midi features']);
     }
     public function extractAudioFeatures(Request $request)
     {
@@ -87,6 +88,7 @@ class TrackController extends Controller
             }
             return response()->json(['similar_audio' => $similarMidiData]);
         }
+        return \response()->json(['error' => 'Failed to extract audio features']);
     }
     public function extractImageFeatures(Request $request)
     {
@@ -150,6 +152,7 @@ class TrackController extends Controller
         $data = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
         $records = [];
         foreach($data as $track){
+
             if (str_contains($track['audio_path'], '-')) {
                 [$artist, $name] = explode('-', $track['audio_path'], 2);
             }else if (str_contains($track['audio_path'], '/')) {
@@ -167,7 +170,9 @@ class TrackController extends Controller
                 $artist = 'Unknown';
                 $name = $track['audio_path'];
             }
-            dump($track['cover_path']);
+            if (Track::where('audio_path', $track['audio_path'])->exists()) {
+                continue;
+            }
             $records[] = [
                 'name'=>$name,
                 'cover_path'=>$track['cover_path'],
