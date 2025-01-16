@@ -299,4 +299,4 @@ def rank_best_match(hummed_file, features_dict, window_size=20, stride=4,cache_d
 
     # Sort results based on similarity scores
     ranked_results = sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True)
-    return dict(ranked_results)
+    return dict(ranked_results[:5])
