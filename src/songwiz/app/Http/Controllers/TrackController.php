@@ -146,7 +146,6 @@ class TrackController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
-
         // Perform the fuzzy search, ordering by similarity
         $tracks = Track::select('*')
             ->where('audio_path', 'ILIKE', "%$query%")

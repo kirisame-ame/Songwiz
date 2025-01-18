@@ -5,8 +5,8 @@ import axios from 'axios'
 import SongCard from '@/Components/SongCard'
 import SearchIcon from '@/svg/SearchIcon'
 
-const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
-// unauthenticated user can access this page
+const API_URL = import.meta.env.VITE_API_URL
+
 export default function Database() {
     const [tracks, setTracks] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
@@ -15,7 +15,11 @@ export default function Database() {
     const [query, setQuery] = useState('')
 
     useEffect(() => {
-        fetchTracks(currentPage, sortOption)
+        if (query === '') {
+            void fetchTracks(currentPage, sortOption)
+        } else {
+            void handleSearchQuery(currentPage)
+        }
     }, [currentPage, sortOption])
 
     const fetchTracks = async (page: number, sort: string) => {
@@ -28,15 +32,17 @@ export default function Database() {
             console.error('Error fetching tracks:', error)
         }
     }
-    const handleSearchQuery = async () => {
+    const handleSearchQuery = async (page: number) => {
         if (query === '') {
-            fetchTracks(currentPage, sortOption)
+            await fetchTracks(currentPage, sortOption)
             return
         }
         try {
-            const response = await axios.get(`/search?query=${query}`)
+            const response = await axios.get(
+                `/search?query=${query}&page=${page}`
+            )
             setTracks(response.data.data)
-            setCurrentPage(1)
+            setCurrentPage(response.data.current_page)
             setLastPage(response.data.last_page)
         } catch (error) {
             console.error('Error fetching tracks:', error)
@@ -105,13 +111,13 @@ export default function Database() {
                             placeholder="Search title or artist"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    handleSearchQuery()
+                                    handleSearchQuery(1)
                                 }
                             }}
                             onChange={(e) => setQuery(e.target.value)}
                         />
                         <button
-                            onClick={handleSearchQuery}
+                            onClick={() => handleSearchQuery(1)}
                             className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:ring-1"
                         >
                             <SearchIcon />

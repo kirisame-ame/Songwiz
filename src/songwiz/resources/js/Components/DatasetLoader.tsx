@@ -3,7 +3,7 @@ import axios from 'axios'
 import UpArrowIcon from '@/svg/UpArrowIcon'
 import FileUploader from '@/Components/FileUploader'
 
-const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
+const API_URL = import.meta.env.VITE_API_URL
 function DatasetLoader() {
     const [isUploading, setIsUploading] = useState(false)
     const [isModalMinimized, setIsModalMinimized] = useState(false)
@@ -12,7 +12,7 @@ function DatasetLoader() {
     const handleProcessDataset = async () => {
         setIsUploading(true)
         try {
-            await axios.post(API_URL+'/process')
+            await axios.post(API_URL + '/process')
             console.log('Processing complete')
             setIsUploadComplete(true)
         } catch (err) {

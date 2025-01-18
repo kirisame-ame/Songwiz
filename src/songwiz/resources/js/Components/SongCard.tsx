@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import MidiPlayer from './MidiPlayer'
 import WavMp3Player from './WavMp3Player'
 
-const API_URL = 'http://noogs4okgk04gww40g8g0sw0.140.245.62.251.sslip.io'
+const API_URL = import.meta.env.VITE_API_URL
 interface SongCardProps {
     image: string
     title: string
