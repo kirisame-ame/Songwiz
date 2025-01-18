@@ -25,6 +25,7 @@ export default function Database() {
     const fetchTracks = async (page: number, sort: string) => {
         try {
             const response = await axios.get(`/index?page=${page}&sort=${sort}`)
+            console.log(response.data)
             setTracks(response.data.data)
             setCurrentPage(response.data.current_page)
             setLastPage(response.data.last_page)
@@ -150,20 +151,44 @@ export default function Database() {
                         ))}
                     </div>
                     <div className="mb-4 mt-6 flex justify-center">
-                        <button
+                        <a
                             onClick={handlePreviousPage}
-                            disabled={currentPage === 1}
-                            className="cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                            aria-disabled={currentPage === 1}
+                            rel="prev"
+                            className="relative inline-flex items-center rounded-l-md border border-black bg-black px-2 py-2 text-sm font-medium leading-5 text-red-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                            aria-label="{{ __('pagination.previous') }}"
                         >
-                            Previous
-                        </button>
-                        <button
+                            <svg
+                                className="h-5 w-5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </a>
+                        <a
                             onClick={handleNextPage}
-                            disabled={currentPage === lastPage}
-                            className="ms-2 cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                            aria-disabled={currentPage === lastPage}
+                            rel="next"
+                            className="relative -ml-px inline-flex items-center rounded-r-md border border-black bg-black px-2 py-2 text-sm font-medium leading-5 text-blue-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                            aria-label="{{ __('pagination.next') }}"
                         >
-                            Next
-                        </button>
+                            <svg
+                                className="h-5 w-5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </nav>
