@@ -136,8 +136,9 @@ class TrackController extends Controller
     public function index(Request $request)
     {
         $sorter = $request->input('sort');
+        $order = $request->input('order');
         try {
-            $tracks = Track::orderBy($sorter)->paginate(8);
+            $tracks = Track::orderBy($sorter,$order)->paginate(8);
             return response()->json($tracks);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -146,6 +147,7 @@ class TrackController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
+        $order = $request->input('order');
         // Perform the fuzzy search, ordering by similarity
         $tracks = Track::select('*')
             ->where('audio_path', 'ILIKE', "%$query%")

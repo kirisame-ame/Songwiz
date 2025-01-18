@@ -12,19 +12,29 @@ export default function Database() {
     const [currentPage, setCurrentPage] = useState(1)
     const [lastPage, setLastPage] = useState(1)
     const [sortOption, setSortOption] = useState('name')
+    const [sortOrder, setSortOrder] = useState('asc')
     const [query, setQuery] = useState('')
 
     useEffect(() => {
         if (query === '') {
-            void fetchTracks(currentPage, sortOption)
+            void fetchTracks(currentPage, sortOption, sortOrder)
         } else {
             void handleSearchQuery(currentPage)
         }
-    }, [currentPage, sortOption])
-
-    const fetchTracks = async (page: number, sort: string) => {
+    }, [currentPage, sortOrder])
+    useEffect(() => {
+        if (query === '') {
+            void fetchTracks(1, sortOption, sortOrder)
+            setCurrentPage(1)
+        } else {
+            void handleSearchQuery(currentPage)
+        }
+    }, [sortOption])
+    const fetchTracks = async (page: number, sort: string, order: string) => {
         try {
-            const response = await axios.get(`/index?page=${page}&sort=${sort}`)
+            const response = await axios.get(
+                `/index?page=${page}&sort=${sort}&order=${order}`
+            )
             console.log(response.data)
             setTracks(response.data.data)
             setCurrentPage(response.data.current_page)
@@ -35,7 +45,7 @@ export default function Database() {
     }
     const handleSearchQuery = async (page: number) => {
         if (query === '') {
-            await fetchTracks(currentPage, sortOption)
+            await fetchTracks(currentPage, sortOption, sortOrder)
             return
         }
         try {
@@ -50,6 +60,15 @@ export default function Database() {
         }
     }
 
+    const handleSortOrder = () => {
+        if (sortOrder === 'asc') {
+            setSortOrder('desc')
+            setCurrentPage(1)
+        } else {
+            setSortOrder('asc')
+            setCurrentPage(1)
+        }
+    }
     const handleNextPage = () => {
         if (currentPage < lastPage) {
             setCurrentPage(currentPage + 1)
@@ -83,12 +102,6 @@ export default function Database() {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                {/* <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink> */}
                                 <NavLink
                                     href={'/'}
                                     active={route().current('/')}
@@ -102,36 +115,62 @@ export default function Database() {
                                 >
                                     Database
                                 </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    active={route().current('dashboard')}
+                                >
+                                    Dashboard
+                                </NavLink>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-5 flex flex-row items-center">
-                        <input
-                            className="rounded-l-md border-0 bg-gray-50 pr-9 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0 focus:ring-offset-transparent"
-                            type="text"
-                            placeholder="Search title or artist"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleSearchQuery(1)
-                                }
-                            }}
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
-                        <button
-                            onClick={() => handleSearchQuery(1)}
-                            className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:ring-1"
-                        >
-                            <SearchIcon />
-                        </button>
+                    <div className="mt-5 flex flex-row items-center gap-x-4">
+                        <div className="flex">
+                            <input
+                                className="rounded-l-md border-0 bg-gray-50 pr-9 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0 focus:ring-offset-transparent"
+                                type="text"
+                                placeholder="Search title or artist"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        void handleSearchQuery(1)
+                                    }
+                                }}
+                                onChange={(e) => setQuery(e.target.value)}
+                            />
+                            <button
+                                onClick={() => handleSearchQuery(1)}
+                                className="border-1 flex items-center rounded-r-md bg-white px-5 py-1 text-xl text-black transition duration-200 hover:ring-1"
+                            >
+                                <SearchIcon />
+                            </button>
+                        </div>
+
                         <select
                             value={sortOption}
                             onChange={(e) => setSortOption(e.target.value)}
-                            className="ml-4 rounded-md border border-gray-300 bg-gray-50"
+                            className="rounded-md border border-gray-300 bg-gray-50"
                         >
                             <option value="name">Name</option>
                             <option value="artist">Artist</option>
                             <option value="date">Date</option>
                         </select>
+                        {/*sort order*/}
+                        <button
+                            onClick={handleSortOrder}
+                            className={`relative -ml-px inline-flex items-center rounded-md text-sm font-medium leading-5 transition duration-150 ease-in-out hover:ring-1 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500 ${sortOrder === 'asc' ? 'text-blue-500' : 'text-red-500'}`}
+                        >
+                            <svg
+                                className={`h-8 w-8 ${sortOrder === 'asc' ? '-rotate-90' : 'rotate-90'}`}
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </button>
                     </div>
                     <div className="mt-5 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
                         {tracks.map((track: any) => (
@@ -155,7 +194,7 @@ export default function Database() {
                             onClick={handlePreviousPage}
                             aria-disabled={currentPage === 1}
                             rel="prev"
-                            className="relative inline-flex items-center rounded-l-md border border-black bg-black px-2 py-2 text-sm font-medium leading-5 text-red-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                            className="relative inline-flex items-center rounded-l-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-red-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
                             aria-label="{{ __('pagination.previous') }}"
                         >
                             <svg
@@ -174,7 +213,7 @@ export default function Database() {
                             onClick={handleNextPage}
                             aria-disabled={currentPage === lastPage}
                             rel="next"
-                            className="relative -ml-px inline-flex items-center rounded-r-md border border-black bg-black px-2 py-2 text-sm font-medium leading-5 text-blue-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                            className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-blue-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
                             aria-label="{{ __('pagination.next') }}"
                         >
                             <svg
