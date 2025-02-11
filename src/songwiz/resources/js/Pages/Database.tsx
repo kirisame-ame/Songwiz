@@ -86,11 +86,11 @@ export default function Database() {
     }
 
     return (
-        <div className="min-h-screen bg-[url('/images/background.jpeg')] bg-cover pb-4 pt-3 text-black/70">
+        <div className="min-w-screen min-h-screen overflow-x-hidden bg-[url('/images/background.jpeg')] bg-cover pb-4 pt-3 text-black/70">
             <nav className="">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
+                <div className="mx-5 max-w-7xl xl:mx-auto">
+                    <div className="flex justify-between">
+                        <div className="flex max-h-12">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
                                     <img
@@ -124,8 +124,8 @@ export default function Database() {
                             </div>
                         </div>
                     </div>
-                    <div className="mt-5 flex flex-row items-center gap-x-4">
-                        <div className="flex">
+                    <div className="mt-3 flex flex-col gap-y-2 sm:flex-row sm:gap-x-4">
+                        <div className="flex max-h-8">
                             <input
                                 className="rounded-l-md border-0 bg-gray-50 pr-9 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0 focus:ring-offset-transparent"
                                 type="text"
@@ -144,35 +144,36 @@ export default function Database() {
                                 <SearchIcon />
                             </button>
                         </div>
-
-                        <select
-                            value={sortOption}
-                            onChange={(e) => setSortOption(e.target.value)}
-                            className="rounded-md border border-gray-300 bg-gray-50"
-                        >
-                            <option value="name">Name</option>
-                            <option value="artist">Artist</option>
-                            <option value="date">Date</option>
-                        </select>
-                        {/*sort order*/}
-                        <button
-                            onClick={handleSortOrder}
-                            className={`relative -ml-px inline-flex items-center rounded-md text-sm font-medium leading-5 transition duration-150 ease-in-out hover:ring-1 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500 ${sortOrder === 'asc' ? 'text-blue-500' : 'text-red-500'}`}
-                        >
-                            <svg
-                                className={`h-8 w-8 ${sortOrder === 'asc' ? '-rotate-90' : 'rotate-90'}`}
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
+                        <div className="flex items-center gap-x-5">
+                            <select
+                                value={sortOption}
+                                onChange={(e) => setSortOption(e.target.value)}
+                                className="h-8 rounded-md border border-gray-300 bg-gray-50 py-0"
                             >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                    clip-rule="evenodd"
-                                />
-                            </svg>
-                        </button>
+                                <option value="name">Name</option>
+                                <option value="artist">Artist</option>
+                                <option value="date">Date</option>
+                            </select>
+                            {/*sort order*/}
+                            <button
+                                onClick={handleSortOrder}
+                                className={`relative -ml-px inline-flex items-center rounded-md text-sm font-medium leading-5 transition duration-150 ease-in-out hover:ring-1 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500 ${sortOrder === 'asc' ? 'text-blue-500' : 'text-red-500'}`}
+                            >
+                                <svg
+                                    className={`h-8 w-8 ${sortOrder === 'asc' ? '-rotate-90' : 'rotate-90'}`}
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <div className="mt-5 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    <div className="mt-3 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
                         {tracks.map((track: any) => (
                             <SongCard
                                 key={track.id}
@@ -189,7 +190,7 @@ export default function Database() {
                             />
                         ))}
                     </div>
-                    <div className="mb-4 mt-6 flex justify-center">
+                    <div className="mt-4 flex justify-center">
                         <a
                             onClick={handlePreviousPage}
                             aria-disabled={currentPage === 1}

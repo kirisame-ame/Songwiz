@@ -4,6 +4,7 @@ import ImageInput from '@/Components/ImageInput'
 import { useState } from 'react'
 import AudioInput from '@/Components/AudioInput'
 import QueryResultCard from '@/Components/QueryResultCard'
+
 interface TrackData {
     name: string
     artist: string
@@ -12,6 +13,7 @@ interface TrackData {
     audio_type: string
     score: number
 }
+
 export default function Welcome({
     auth,
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
@@ -33,18 +35,18 @@ export default function Welcome({
     return (
         <>
             <Head title="Songwiz" />
-            <div className="bg-[url('/images/background.jpeg')] bg-cover">
+            <div className="min-w-screen bg-[url('/images/background.jpeg')] bg-cover">
                 <div className="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                        <header className="grid grid-cols-2 items-center gap-2 lg:grid-cols-3">
-                            <div className="flex lg:col-start-2 lg:justify-center">
+                        <header className="grid lg:grid-cols-3 lg:grid-rows-1 lg:items-center">
+                            <div className="flex justify-center lg:col-start-2">
                                 <img
                                     alt="Logo"
                                     src="/images/logo.png"
-                                    className="w-4/5"
+                                    className="w-48 lg:w-96"
                                 />
                             </div>
-                            <nav className="-mx-3 mt-3 flex flex-1 justify-end">
+                            <nav className="flex flex-1 justify-around lg:-mx-3 lg:mt-3 lg:justify-end lg:gap-x-5">
                                 {auth.user ? (
                                     <Link
                                         href={route('dashboard')}
@@ -71,7 +73,7 @@ export default function Welcome({
 
                                 <Link
                                     href={route('database')}
-                                    className="rounded-md px-10 py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                    className="rounded-md py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
                                 >
                                     Database
                                 </Link>

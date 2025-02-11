@@ -4,6 +4,7 @@ import MidiPlayer from './MidiPlayer'
 import WavMp3Player from './WavMp3Player'
 
 const API_URL = import.meta.env.VITE_API_URL
+
 interface SongCardProps {
     image: string
     title: string
@@ -33,14 +34,14 @@ const SongCard: React.FC<SongCardProps> = ({
         if (type === 'midi' || type === 'mid') {
             return {
                 backgroundColor: '#FFD700',
-                padding: '4px 8px',
+                padding: '2px 8px',
                 borderRadius: '4px',
                 color: '#000',
             }
         } else {
             return {
                 backgroundColor: '#1E90FF',
-                padding: '4px 8px',
+                padding: '2px 8px',
                 borderRadius: '4px',
                 color: '#fff',
             }
@@ -81,13 +82,9 @@ const SongCard: React.FC<SongCardProps> = ({
 
     return (
         <div className="overflow-hidden rounded-lg shadow-lg">
-            <img
-                src={image}
-                alt={title}
-                className="w-full object-cover sm:h-48 md:h-60"
-            />
-            <div className="p-2 text-center">
-                <h3 className="text-lg font-bold">{title}</h3>
+            <img src={image} alt={title} className="h-40 w-full object-cover" />
+            <div className="pt-2 text-center">
+                <h3 className="font-bold">{title}</h3>
                 <p className="text-sm text-gray-500">
                     {artist}{' '}
                     <span
@@ -98,7 +95,7 @@ const SongCard: React.FC<SongCardProps> = ({
                     </span>
                 </p>
             </div>
-            <div className="mb-4 flex items-center justify-center">
+            <div className="flex items-center justify-center">
                 {isPlaying &&
                     (audio_type === 'midi' || audio_type === 'mid') && (
                         <div className="w-full max-w-xs">
@@ -124,7 +121,7 @@ const SongCard: React.FC<SongCardProps> = ({
                                     : '../../images/play.png'
                             }
                             alt={isPlaying ? 'Pause' : 'Play'}
-                            className="w-6"
+                            className="w-5"
                         />
                     </button>
                 )}
