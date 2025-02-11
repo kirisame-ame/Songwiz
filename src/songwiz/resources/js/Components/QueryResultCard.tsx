@@ -82,46 +82,56 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
             {trackData.map((track, index) => (
                 <div
                     key={index}
-                    className="flex flex-row items-center justify-between rounded-lg bg-gray-50/50 p-4 shadow-lg"
+                    className="flex flex-col items-center justify-between rounded-lg bg-gray-50/50 p-4 shadow-lg md:flex-row"
                 >
-                    <div className="flex w-3/4 items-center">
-                        <div className="flex items-center">
-                            <div className="min-w-12">
+                    <div className="flex w-full flex-col items-center md:flex-row">
+                        <div className="flex flex-col items-center md:flex-row">
+                            <div className="hidden min-w-12 md:ml-5 md:mr-5 md:inline">
                                 <p className="text-6xl">{index + 1}</p>
                             </div>
                             <img
                                 src={API_URL + '/fetch/img/' + track.cover_path}
                                 alt={track.name}
-                                className="h-48 w-48 rounded-full object-cover"
+                                className="h-48 min-w-48 max-w-48 rounded-full object-cover"
                             />
                         </div>
 
-                        <div className="ml-8 flex-1 items-center">
-                            <h3 className="text-lg font-bold">
+                        <div className="flex w-full flex-col text-center md:ml-8 md:items-center md:text-left">
+                            <h3 className="break-words text-center text-lg font-bold">
                                 {removeExtension(track.name)}
                             </h3>
                             <p className="text-sm text-gray-500">
                                 {track.artist}
                             </p>
                             <p>.{track.audio_type}</p>
+                            {audioFiles[index] &&
+                            (track.audio_type === 'wav' ||
+                                track.audio_type === 'mp3') ? (
+                                <div className="flex max-w-full">
+                                    <audio
+                                        className="min-w-full max-w-full"
+                                        src={
+                                            API_URL +
+                                            '/fetch/audio/' +
+                                            track.audio_path
+                                        }
+                                        controls
+                                    />
+                                </div>
+                            ) : audioFiles[index] ? (
+                                <div className="flex max-w-full">
+                                    <MidiPlayer midiFile={audioFiles[index]} />
+                                </div>
+                            ) : (
+                                <p>Loading Audio...</p>
+                            )}
                         </div>
                     </div>
 
-                    {audioFiles[index] &&
-                    (track.audio_type === 'wav' ||
-                        track.audio_type === 'mp3') ? (
-                        <audio
-                            src={API_URL + '/fetch/audio/' + track.audio_path}
-                            controls
-                        />
-                    ) : audioFiles[index] ? (
-                        <div className="">
-                            <MidiPlayer midiFile={audioFiles[index]} />
-                        </div>
-                    ) : (
-                        <p>Loading Audio...</p>
-                    )}
-                    <p className="">{Number(track.score).toFixed(2)}</p>
+                    <div className="flex w-1/2 flex-row justify-between md:w-fit">
+                        <strong className="md:hidden">#{index + 1}</strong>
+                        <p className="">{Number(track.score).toFixed(2)}</p>
+                    </div>
                 </div>
             ))}
         </div>
