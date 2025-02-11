@@ -201,7 +201,7 @@ export default function Database() {
                                 onClick={handlePreviousPage}
                                 aria-disabled={currentPage === 1}
                                 rel="prev"
-                                className="relative inline-flex items-center rounded-l-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-red-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                                className="relative inline-flex items-center rounded-l-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-red-500 ring-black transition duration-150 ease-in-out focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500 md:hover:scale-125"
                                 aria-label="{{ __('pagination.previous') }}"
                             >
                                 <svg
@@ -220,7 +220,7 @@ export default function Database() {
                                 onClick={handleNextPage}
                                 aria-disabled={currentPage === lastPage}
                                 rel="next"
-                                className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-blue-500 ring-black transition duration-150 ease-in-out hover:scale-125 focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500"
+                                className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-50 bg-gray-50 px-2 py-2 text-sm font-medium leading-5 text-blue-500 ring-black transition duration-150 ease-in-out focus:z-10 focus:border-black focus:outline-none focus:ring active:bg-gray-700 active:text-gray-500 md:hover:scale-125"
                                 aria-label="{{ __('pagination.next') }}"
                             >
                                 <svg
