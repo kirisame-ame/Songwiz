@@ -17,6 +17,10 @@ cmd = '/assets/start.sh'
 "start.sh" = '''
 #!/bin/bash
 
+# Set environment variables for Dev
+export PORT=8080
+export PHP_FPM_PORT=9001
+
 # Transform the nginx configuration
 node /assets/scripts/prestart.mjs /assets/nginx.template.conf /etc/nginx.conf
 
@@ -69,24 +73,9 @@ stdout_logfile=/var/log/worker-phpfpm.log
 stderr_logfile=/var/log/worker-phpfpm.log
 '''
 
-"worker-laravel.conf" = '''
-[program:worker-laravel]
-process_name=%(program_name)s_%(process_num)02d
-command=bash -c 'exec php /app/artisan queue:work --sleep=3 --tries=3 --max-time=3600'
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-numprocs=12
-startsecs=0
-stopwaitsecs=3600
-stdout_logfile=/var/log/worker-laravel.log
-stderr_logfile=/var/log/worker-laravel.log
-'''
-
 "php-fpm.conf" = '''
 [www]
-listen = 127.0.0.1:9001
+listen = 127.0.0.1:9001 # Use a different port for Dev
 user = www-data
 group = www-data
 listen.owner = www-data
@@ -125,7 +114,7 @@ http {
     server_names_hash_bucket_size 128; # this seems to be required for some vhosts
 
     server {
-        listen ${PORT};
+        listen ${PORT}; # Use the environment variable for the port
         listen [::]:${PORT};
         server_name localhost;
 
@@ -165,7 +154,7 @@ http {
         ) else ()
 
         location ~ \.php$ {
-            fastcgi_pass 127.0.0.1:9001;
+            fastcgi_pass 127.0.0.1:${PHP_FPM_PORT}; # Use the environment variable for the PHP-FPM port
             fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
             include $!{nginx}/conf/fastcgi_params;
             include $!{nginx}/conf/fastcgi.conf;
@@ -179,4 +168,3 @@ http {
     }
 }
 '''
-
