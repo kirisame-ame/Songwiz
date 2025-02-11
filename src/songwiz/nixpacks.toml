@@ -86,7 +86,7 @@ stderr_logfile=/var/log/worker-laravel.log
 
 "php-fpm.conf" = '''
 [www]
-listen = 127.0.0.1:9000
+listen = 127.0.0.1:9001
 user = www-data
 group = www-data
 listen.owner = www-data
@@ -165,7 +165,7 @@ http {
         ) else ()
 
         location ~ \.php$ {
-            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_pass 127.0.0.1:9001;
             fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
             include $!{nginx}/conf/fastcgi_params;
             include $!{nginx}/conf/fastcgi.conf;
@@ -178,15 +178,5 @@ http {
         }
     }
 }
-'''
-
-[custom]
-install = '''
-apt-get update
-apt-get install -y python3 python3-pip
-pip install numpy
-pip install time
-pip install mido
-pip install pickle
 '''
 
