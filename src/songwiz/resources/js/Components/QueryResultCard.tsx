@@ -115,7 +115,9 @@ const QueryResultCard: React.FC<QueryResultCardProps> = ({ trackData }) => {
                             controls
                         />
                     ) : audioFiles[index] ? (
-                        <MidiPlayer midiFile={audioFiles[index]} />
+                        <div className="">
+                            <MidiPlayer midiFile={audioFiles[index]} />
+                        </div>
                     ) : (
                         <p>Loading Audio...</p>
                     )}

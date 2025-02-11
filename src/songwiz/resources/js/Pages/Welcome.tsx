@@ -46,7 +46,13 @@ export default function Welcome({
                                     className="w-48 lg:w-96"
                                 />
                             </div>
-                            <nav className="flex flex-1 justify-around lg:-mx-3 lg:mt-3 lg:justify-end lg:gap-x-5">
+                            <nav className="flex flex-1 justify-around lg:mt-8 lg:justify-normal lg:gap-x-5 xl:gap-x-[60px]">
+                                <Link
+                                    href={route('database')}
+                                    className="rounded-md py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                >
+                                    Database
+                                </Link>
                                 {auth.user ? (
                                     <Link
                                         href={route('dashboard')}
@@ -58,7 +64,7 @@ export default function Welcome({
                                     <>
                                         <Link
                                             href={route('login')}
-                                            className="rounded-md px-3 py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
+                                            className="rounded-md py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
                                         >
                                             Admin Login
                                         </Link>
@@ -70,18 +76,11 @@ export default function Welcome({
                                         </Link>
                                     </>
                                 )}
-
-                                <Link
-                                    href={route('database')}
-                                    className="rounded-md py-2 text-xl font-bold text-black/70 ring-1 ring-transparent transition hover:scale-110 hover:text-red-500 focus:outline-none focus-visible:ring-[#FF2D20]"
-                                >
-                                    Database
-                                </Link>
                             </nav>
                         </header>
 
                         <main className="">
-                            <div className="mx-auto w-3/4">
+                            <div className="mx-auto lg:w-3/4">
                                 <div className="flex flex-col items-center justify-center">
                                     <div className="flex w-full flex-row">
                                         <div

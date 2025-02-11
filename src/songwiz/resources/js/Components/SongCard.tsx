@@ -105,7 +105,7 @@ const SongCard: React.FC<SongCardProps> = ({
 
                 {isPlaying &&
                     (audio_type === 'wav' || audio_type === 'mp3') && (
-                        <div className="w-full max-w-xs">
+                        <div className="w-full max-w-xs py-[3px]">
                             <WavMp3Player audioFile={audioFile} />
                         </div>
                     )}
