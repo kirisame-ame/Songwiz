@@ -144,11 +144,12 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     // Handle Audio Recording
     const startRecording = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+            },
         })
-        const recorder = new MediaRecorder(stream, {
-            audioBitsPerSecond: 705600,
-        })
+        const recorder = new MediaRecorder(stream)
 
         const chunks: Blob[] = []
 
