@@ -73,7 +73,7 @@ def rank_audio_files(reference_file,cache_dir):
         local_distance = []
         if features is not None:
             for i in features:
-                dis,_ = librosa.sequence.dtw(feat, i)
+                dis,_ = librosa.sequence.dtw(reference_features, i)
                 local_distance.append(dis[-1,-1])
             min = np.min(local_distance)
             distances.append((file,min))
