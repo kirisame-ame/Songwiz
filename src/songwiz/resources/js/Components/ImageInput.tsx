@@ -89,13 +89,13 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
     }
 
     return (
-        <div className="">
+        <div className="max-w-full">
             {previewUrl && (
-                <div className="flex items-center justify-center">
+                <div className="mx-5 flex items-center justify-center md:max-h-[400px] md:max-w-[400px]">
                     <img
                         src={previewUrl}
                         alt="Preview"
-                        className="max-h-[400px] max-w-[400px] rounded-md object-cover"
+                        className="max-w-full rounded-md object-cover"
                     />
                 </div>
             )}
@@ -109,14 +109,14 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
             />
             {/* Display selected file name */}
             {fileName && (
-                    <div className='max-w-sm'>
-                        <p>Selected File: {fileName}</p>
-                    </div>
-                    )}
+                <div className="mt-5">
+                    <p className="break-words">Selected File: {fileName}</p>
+                </div>
+            )}
             {/* Custom button to trigger file input */}
             <button
                 onClick={handleButtonClick}
-                className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 hover:scale-150"
+                className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 lg:hover:scale-150"
             >
                 {previewUrl ? 'Change File' : 'Upload File'}
             </button>
@@ -125,7 +125,7 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
             >
                 <button
                     onClick={handleImageQuery}
-                    className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150"
+                    className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 lg:hover:scale-150"
                 >
                     <SearchIcon />
                     <p>Search</p>

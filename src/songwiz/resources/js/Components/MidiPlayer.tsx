@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-
+import useWindowDimensions from '@/hooks/windowSizeHook'
 interface MidiPlayerProps {
     midiFile: File | null // Receive midiFile as a prop
 }
@@ -9,6 +9,7 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
     const [scriptLoaded, setScriptLoaded] = useState(false) // Track if the script has loaded
     const [midiUrl, setMidiUrl] = useState<string | null>(null) // State to store object URL for the midi file
     const midiPlayerRef = useRef<any | null>(null) // Reference to the midi player instance
+    const size = useWindowDimensions() // Use the custom hook to get the window size
 
     useEffect(() => {
         // Dynamically load the external scripts
@@ -63,8 +64,16 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
             midiPlayer.setAttribute('visualizer', '#myVisualizer')
 
             // Apply styles directly to the MIDI player
-            midiPlayer.style.width = '280px'  
-            midiPlayer.style.height = '50px'  
+            if (size === 'xs') {
+                midiPlayer.style.width = '260px'
+                midiPlayer.style.height = '30px'
+            } else if (size === 'md') {
+                midiPlayer.style.width = '160px'
+                midiPlayer.style.height = '30px'
+            } else {
+                midiPlayer.style.width = '280px'
+                midiPlayer.style.height = '40px'
+            }
 
             containerRef.current.appendChild(midiPlayer)
 
@@ -87,12 +96,14 @@ const MidiPlayer: React.FC<MidiPlayerProps> = ({ midiFile }) => {
     }, [scriptLoaded, midiUrl])
 
     return (
-        <div style= {{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-        }}>
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+            }}
+        >
             <div ref={containerRef}></div>
         </div>
     )

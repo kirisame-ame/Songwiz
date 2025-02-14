@@ -155,8 +155,12 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
 
         recorder.onstop = () => {
             const audioBlob = new Blob(chunks, { type: 'audio/wav' })
+            const recordingFile = new File([audioBlob], 'recording.wav')
             const audioUrl = URL.createObjectURL(audioBlob)
             setRecordedAudioUrl(audioUrl) // Set the recorded audio URL for playback
+            setFileName('Recorded Audio') // Set the file name to 'Recorded Audio'
+            setAudioFile(recordingFile)
+            setMidiFile(null)
             setIsRecording(false) // Reset recording state
             setMediaRecorder(null) // Reset MediaRecorder instance
         }
@@ -189,90 +193,94 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
             }
         }
     }, [previewUrl, recordedAudioUrl])
-    // Handle MIDI playback (play, stop, clear sequence)
 
     return (
-        <div className="flex w-full justify-around">
-            {/* Left section for file upload */}
-            <div className="flex flex-col p-4">
-                <h2>Upload File</h2>
-                {/* Display audio player if audio file is selected */}
-                {previewUrl && !midiFile && (
-                    <div className="flex items-center justify-center">
-                        <audio src={previewUrl} controls />
-                    </div>
-                )}
-
-                {/* Display MIDI playback button if a MIDI file is selected */}
-                {midiFile && !previewUrl && (
-                    <div className="flex items-center justify-center">
-                        <MidiPlayer midiFile={midiFile} />
-                    </div>
-                )}
-
-                {/* Hidden file input */}
-                <input
-                    id="hidden-file-input"
-                    type="file"
-                    accept=".mp3,.wav,.midi,.mid"
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }} // Hide the default file input
-                />
-
-                {/* Display selected file name */}
-                {fileName && (
-                    <div className='max-w-sm'>
-                        <p>Selected File: {fileName}</p>
-                    </div>
+        <div className="flex w-full flex-col items-center justify-around">
+            <div className="flex w-full flex-row">
+                {/* Left section for file upload */}
+                <div className="flex w-full flex-col items-center md:p-4">
+                    {/* Custom button to trigger file input */}
+                    <button
+                        onClick={handleButtonClick}
+                        className="border-1 rounded-md px-5 text-2xl text-black transition duration-200 md:text-3xl lg:hover:scale-150"
+                    >
+                        {previewUrl || midiFile ? 'Change File' : 'Upload File'}
+                    </button>
+                    {/* Display audio player if audio file is selected */}
+                    {previewUrl && !midiFile && (
+                        <div className="flex items-center justify-center pt-4">
+                            <audio
+                                className="mx-2 max-w-full"
+                                src={previewUrl}
+                                controls
+                            />
+                        </div>
+                    )}
+                    {/* Display MIDI playback button if a MIDI file is selected */}
+                    {midiFile && !previewUrl && (
+                        <div className="flex items-center justify-center">
+                            <MidiPlayer midiFile={midiFile} />
+                        </div>
                     )}
 
-                {/* Custom button to trigger file input */}
-                <button
-                    onClick={handleButtonClick}
-                    className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 hover:scale-150"
-                >
-                    {previewUrl || midiFile ? 'Change File' : 'Upload File'}
-                </button>
+                    {/* Hidden file input */}
+                    <input
+                        id="hidden-file-input"
+                        type="file"
+                        accept=".mp3,.wav,.midi,.mid"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }} // Hide the default file input
+                    />
+                </div>
+                {/* Right Section: Image */}
+                <div className="flex w-full flex-col items-center justify-center text-center md:p-4">
+                    {/* Audio Recording Controls */}
+                    {!isRecording ? (
+                        <button
+                            onClick={startRecording}
+                            className="border-1 rounded-md text-2xl text-black transition duration-200 md:text-3xl lg:hover:scale-150"
+                        >
+                            Start Recording
+                        </button>
+                    ) : (
+                        <p className="mt-2 text-xl text-red-500">
+                            Recording...{countdown}s
+                        </p>
+                    )}
 
-                {/* Search button after file selection */}
-                <div
-                    className={`flex w-full items-center justify-center pt-2 ${previewUrl || midiFile ? '' : 'hidden'}`}
-                >
-                    <button
-                        onClick={handleAudioQuery}
-                        className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 hover:scale-150"
-                    >
-                        <SearchIcon />
-                        <p>Search</p>
-                    </button>
+                    {/* Display recorded audio player */}
+                    {recordedAudioUrl && (
+                        <div className="flex items-center justify-center pt-4">
+                            <audio
+                                className="mx-2 max-w-full"
+                                src={recordedAudioUrl}
+                                controls
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Right Section: Image */}
-            <div className="flex flex-col items-center justify-center text-center">
-                <h2>Record Audio</h2>
-
-                {/* Audio Recording Controls */}
-                {!isRecording ? (
-                    <button
-                        onClick={startRecording}
-                        className="border-1 rounded-md px-5 text-3xl text-black transition duration-200 hover:scale-150"
-                    >
-                        Start Recording
-                    </button>
-                ) : (
-                    <p className="mt-2 text-xl text-red-500">
-                        Recording...{countdown}s
-                    </p>
-                )}
-
-                {/* Display recorded audio player */}
-                {recordedAudioUrl && (
-                    <div className="flex items-center justify-center pt-4">
-                        <audio src={recordedAudioUrl} controls />
+            <div>
+                {/* Display selected file name */}
+                {fileName && (
+                    <div className="max-w-sm">
+                        <p>Selected File: {fileName}</p>
                     </div>
                 )}
             </div>
+            {/* Search button after file selection */}
+            <div
+                className={`flex w-full items-center justify-center pt-2 ${previewUrl || midiFile || recordedAudioUrl ? '' : 'hidden'}`}
+            >
+                <button
+                    onClick={handleAudioQuery}
+                    className="border-1 flex items-center rounded-md bg-white px-5 text-3xl text-black transition duration-200 lg:hover:scale-150"
+                >
+                    <SearchIcon />
+                    <p>Search</p>
+                </button>
+            </div>
+
             {(isUploading || isUploadComplete) && (
                 <div
                     className={`fixed ${
