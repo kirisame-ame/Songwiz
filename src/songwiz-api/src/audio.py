@@ -23,21 +23,14 @@ def save_cache(cache,cache_dir):
     with open(cache_dir, 'wb') as f:
         pickle.dump(cache, f)
 
-def compute_audio_features(file_path, cache):
-    """Compute Chroma CENS features for a given audio file, with caching."""
-    if file_path in cache:
-        return cache[file_path]
-    else:   
-        print("features not found in cache")
-
 def process_file(file):
     """Process a single audio file to extract features."""
     print(f"[Worker PID {os.getpid()}] Processing file: {file}") 
     try:
-        y, sr = librosa.load(file, sr=None)
+        y, sr = librosa.load(file)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=12)
-        mfcc_mean = np.mean(mfcc, axis=1)
-        return file, mfcc_mean
+        mfcc_bin = np.array_split(mfcc,20,axis=1)
+        return file, mfcc_bin
     except Exception as e:
         print(f"Error processing file: {file}, {e}")
         return file, None
@@ -66,22 +59,26 @@ def cache_audio_features(audio_dir, cache_dir):
 
 def rank_audio_files(reference_file,cache_dir):
     start_time = time.time()
-    _, reference_features = process_file(reference_file)
+    y1, sr1 = librosa.load(reference_file,duration=10)
+    reference_features = librosa.feature.mfcc(y=y1, sr=sr1, n_mfcc=12)
     if reference_features is None:
         print("Gagal mengekstrak fitur dari file referensi.")
         return []
-    
     distances = []
-    max_distance = 1
     cache = load_cache(cache_dir)
+    max_distance = 0
     for file, features in cache.items():
+        min_distance = float('inf')
         print(f"Calculating distance for {file}")
+        local_distance = []
         if features is not None:
-            distance = euclidean(reference_features, features)
-            print(f"distance for {file}: {distance}")
-            if distance > max_distance:
-                max_distance = distance
-            distances.append((file, distance))
+            for i in features:
+            dis,_ = librosa.sequence.dtw(feat, i)
+            local_distance.append(dis[-1,-1])
+        min = np.min(local_distance)
+        distances.append((file,min))
+        if min > max_distance:
+            max_distance = min
     distances = [(file, 1-distance/max_distance) for file, distance in distances]
     ranked_files = sorted(distances, key=lambda x: x[1],reverse=True)
     end_time = time.time()
