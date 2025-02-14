@@ -146,19 +146,10 @@ http {
         charset utf-8;
 
         $if(IS_LARAVEL) (
-            set $fallback_path "/index.php";
-        ) else (
-            $if(NIXPACKS_PHP_FALLBACK_PATH) (
-                set $fallback_path "${NIXPACKS_PHP_FALLBACK_PATH}";
-            ) else (
-                set $fallback_path "";
-            )
-        )
-
-        location / {
-            try_files $uri $uri/ $fallback_path?$query_string;
-        }
-
+            location / {
+                try_files $uri $uri/ /index.php?$query_string;
+            }
+        ) else ()
 
         location = /favicon.ico { access_log off; log_not_found off; }
         location = /robots.txt  { access_log off; log_not_found off; }
