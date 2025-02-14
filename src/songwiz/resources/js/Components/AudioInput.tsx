@@ -146,7 +146,10 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
         })
-        const recorder = new MediaRecorder(stream)
+        const recorder = new MediaRecorder(stream, {
+            audioBitsPerSecond: 705600,
+        })
+
         const chunks: Blob[] = []
 
         recorder.ondataavailable = (event) => {
@@ -232,7 +235,6 @@ const CustomFileInput: React.FC<TrackDataProps> = ({ setTrackData }) => {
                         style={{ display: 'none' }} // Hide the default file input
                     />
                 </div>
-                {/* Right Section: Image */}
                 <div className="flex w-full flex-col items-center justify-center text-center md:p-4">
                     {/* Audio Recording Controls */}
                     {!isRecording ? (
